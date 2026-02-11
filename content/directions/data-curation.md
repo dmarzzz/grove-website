@@ -4,4 +4,4 @@ numeral: II
 descriptor: A collective mind — not shelves of books, but a web of linked knowledge.
 ---
 
-Everyone contributes to curating, linking, and structuring shared information. Explore parallels, surface hidden similarities, and construct a virtual mind that grows richer with every connection. The library's core asset is not any single document — it is the evolving map of relationships between ideas.
+Local-first tools for storing, linking, and structuring knowledge — designed for consumption by both humans and agents. Psychomapping layers help contributors see their own reflection in the data: where thinking clusters, what gets avoided, how perspective shapes the whole. The core asset is not any single document but the evolving map of relationships between ideas.

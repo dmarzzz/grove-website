@@ -60,12 +60,12 @@
     });
 
     /* — Generate brain-shaped particle distribution — */
-    var PARTICLE_COUNT = 200;
+    var PARTICLE_COUNT = 320;
     var particles = generateBrain(PARTICLE_COUNT);
 
-    /* — Pre-render soft-glow sprites (one per color) — */
-    var spriteOlive = createGlowSprite(32, [82, 96, 56]);
-    var spriteGold  = createGlowSprite(32, [140, 118, 62]);
+    /* — Pre-render soft-glow sprites (one per color, larger) — */
+    var spriteOlive = createGlowSprite(48, [82, 96, 56]);
+    var spriteGold  = createGlowSprite(48, [140, 118, 62]);
 
     /* — Render loop — */
     var frameId;
@@ -83,15 +83,15 @@
 
       var cx = w / 2;
       var cy = h / 2;
-      var sc = w * 0.52;
+      var sc = w * 0.48;
 
       /* — Ambient glow behind the cloud — */
-      var glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, w * 0.38);
-      glow.addColorStop(0, 'rgba(110,100,50,0.025)');
+      var glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, w * 0.44);
+      glow.addColorStop(0, 'rgba(110,100,50,0.04)');
       glow.addColorStop(1, 'rgba(110,100,50,0)');
       ctx.fillStyle = glow;
       ctx.beginPath();
-      ctx.arc(cx, cy, w * 0.38, 0, Math.PI * 2);
+      ctx.arc(cx, cy, w * 0.44, 0, Math.PI * 2);
       ctx.fill();
 
       /* — Transform each particle: drift → rotate → project — */
@@ -124,12 +124,12 @@
 
         /* Depth-driven size & opacity */
         var size  = p.size * s;
-        var alpha = 0.08 + 0.58 * clamp01((rz2 + 0.8) / 1.6);
+        var alpha = 0.15 + 0.65 * clamp01((rz2 + 0.8) / 1.6);
 
         /* Bright nodes: larger, pulsing */
         if (p.bright) {
-          size  *= 1.6;
-          alpha  = Math.min(0.92, alpha * 1.5 + Math.sin(time * 0.0018 + p.phase) * 0.09);
+          size  *= 1.8;
+          alpha  = Math.min(0.95, alpha * 1.6 + Math.sin(time * 0.0018 + p.phase) * 0.1);
         }
 
         pts[i] = { sx: sx, sy: sy, z: rz2, size: size, alpha: alpha, teal: p.teal };
@@ -139,9 +139,9 @@
       pts.sort(function (a, b) { return a.z - b.z; });
 
       /* — Draw connection lines (neural web) — */
-      var thresh  = w * 0.15;
+      var thresh  = w * 0.18;
       var thresh2 = thresh * thresh;
-      ctx.lineWidth = 0.5;
+      ctx.lineWidth = 0.6;
       ctx.globalAlpha = 1;
 
       for (var i = 0; i < pts.length; i++) {
@@ -152,7 +152,7 @@
 
           if (d2 < thresh2) {
             var d = Math.sqrt(d2);
-            var a = (1 - d / thresh) * 0.1 * Math.min(pts[i].alpha, pts[j].alpha);
+            var a = (1 - d / thresh) * 0.15 * Math.min(pts[i].alpha, pts[j].alpha);
             if (a > 0.003) {
               ctx.beginPath();
               ctx.moveTo(pts[i].sx, pts[i].sy);
@@ -169,7 +169,7 @@
         var pt = pts[k];
         ctx.globalAlpha = pt.alpha;
         var sprite   = pt.teal ? spriteGold : spriteOlive;
-        var drawSize = pt.size * 3.8;
+        var drawSize = pt.size * 4.5;
         ctx.drawImage(sprite, pt.sx - drawSize * 0.5, pt.sy - drawSize * 0.5, drawSize, drawSize);
       }
 
@@ -183,57 +183,116 @@
 
   /* ─────────────────────────────────────────────────────────
      Brain Particle Generation
-     Two hemispheres (surface-biased ellipsoids) with anterior
-     tapering, posterior bulge, and a thin connecting region.
+     Anatomically-structured: cerebral hemispheres with dome
+     shape, temporal lobes, cerebellum, brainstem, and visible
+     midline fissure. Coordinates: x = lateral, y = vertical
+     (up on screen), z = front-to-back (rotates with Y spin).
      ───────────────────────────────────────────────────────── */
   function generateBrain(n) {
     var particles = [];
-    var perHemi = Math.floor(n * 0.46);
+    var mainPer  = Math.floor(n * 0.36);
+    var tempPer  = Math.floor(n * 0.07);
+    var cerebPer = Math.floor(n * 0.06);
 
-    for (var i = 0; i < perHemi; i++) addHemisphere(particles, -1);
-    for (var i = 0; i < perHemi; i++) addHemisphere(particles,  1);
+    for (var i = 0; i < mainPer; i++) addCerebralHemi(particles, -1);
+    for (var i = 0; i < mainPer; i++) addCerebralHemi(particles,  1);
+    for (var i = 0; i < tempPer; i++) addTemporalLobe(particles, -1);
+    for (var i = 0; i < tempPer; i++) addTemporalLobe(particles,  1);
+    for (var i = 0; i < cerebPer; i++) addCerebellum(particles);
 
-    /* Corpus callosum / connecting bridge */
-    var bridge = n - perHemi * 2;
-    for (var i = 0; i < bridge; i++) {
-      particles.push(makeParticle(
-        (Math.random() - 0.5) * 0.14,
-        (Math.random() - 0.5) * 0.38,
-        (Math.random() - 0.5) * 0.22
-      ));
+    /* Remaining: corpus callosum + brainstem */
+    var remaining = n - (mainPer * 2 + tempPer * 2 + cerebPer);
+    for (var i = 0; i < remaining; i++) {
+      if (Math.random() < 0.55) {
+        /* Corpus callosum — flat band connecting hemispheres */
+        particles.push(makeParticle(
+          (Math.random() - 0.5) * 0.15,
+          (Math.random() - 0.5) * 0.10,
+          (Math.random() - 0.5) * 0.30
+        ));
+      } else {
+        /* Brainstem — descends from cerebellum */
+        particles.push(makeParticle(
+          (Math.random() - 0.5) * 0.07,
+          -0.30 - Math.random() * 0.20,
+          -0.18 + (Math.random() - 0.5) * 0.10
+        ));
+      }
     }
 
     return particles;
   }
 
-  function addHemisphere(arr, side) {
-    /* Random point in unit sphere, biased toward the surface */
-    var u     = Math.random();
-    var v     = Math.random();
+  function addCerebralHemi(arr, side) {
+    var u = Math.random(), v = Math.random();
     var theta = 2 * Math.PI * u;
     var phi   = Math.acos(2 * v - 1);
-    var r     = 0.2 + Math.pow(Math.random(), 0.45) * 0.8;   /* surface-heavy */
+    var r     = 0.25 + Math.pow(Math.random(), 0.38) * 0.75;
 
     var x = r * Math.sin(phi) * Math.cos(theta);
     var y = r * Math.sin(phi) * Math.sin(theta);
     var z = r * Math.cos(phi);
 
-    /* Shape into hemisphere: scale axes + lateral offset */
-    x = x * 0.42 + side * 0.28;
-    y = y * 0.55;
-    z = z * 0.44;
+    /* Scale into hemisphere shape + lateral gap */
+    x = x * 0.30 + side * 0.30;
+    y = y * 0.38;
+    z = z * 0.48;
 
-    /* Anterior tapering (front narrows) */
+    /* Dome: top rounded, bottom flat */
     if (y > 0) {
-      x *= 1 - y * 0.18;
-      z *= 1 - y * 0.12;
+      y *= 1.2;
+    } else {
+      y *= 0.65;
     }
 
-    /* Posterior bulge (back widens slightly) */
-    if (y < -0.2) {
-      var bulge = Math.abs(y + 0.2) * 0.22;
-      x *= 1 + bulge;
+    /* Frontal taper (z > 0 = front narrows) */
+    if (z > 0.1) {
+      var ft = (z - 0.1) / 0.38;
+      x *= 1 - ft * 0.28;
+      y *= 1 - ft * 0.12;
     }
+
+    /* Occipital slight bulge (back widens) */
+    if (z < -0.18) {
+      var ob = Math.abs(z + 0.18) / 0.30;
+      x *= 1 + ob * 0.12;
+    }
+
+    arr.push(makeParticle(x, y, z));
+  }
+
+  function addTemporalLobe(arr, side) {
+    var u = Math.random(), v = Math.random();
+    var theta = 2 * Math.PI * u;
+    var phi   = Math.acos(2 * v - 1);
+    var r     = 0.30 + Math.pow(Math.random(), 0.5) * 0.70;
+
+    var x = r * Math.sin(phi) * Math.cos(theta);
+    var y = r * Math.sin(phi) * Math.sin(theta);
+    var z = r * Math.cos(phi);
+
+    /* Temporal lobe: lateral, below cerebrum, slightly forward */
+    x = x * 0.20 + side * 0.28;
+    y = y * 0.14 - 0.24;
+    z = z * 0.24 + 0.06;
+
+    arr.push(makeParticle(x, y, z));
+  }
+
+  function addCerebellum(arr) {
+    var u = Math.random(), v = Math.random();
+    var theta = 2 * Math.PI * u;
+    var phi   = Math.acos(2 * v - 1);
+    var r     = 0.30 + Math.pow(Math.random(), 0.5) * 0.70;
+
+    var x = r * Math.sin(phi) * Math.cos(theta);
+    var y = r * Math.sin(phi) * Math.sin(theta);
+    var z = r * Math.cos(phi);
+
+    /* Cerebellum: behind and below the cerebrum, centered */
+    x = x * 0.22;
+    y = y * 0.13 - 0.20;
+    z = z * 0.15 - 0.34;
 
     arr.push(makeParticle(x, y, z));
   }
@@ -241,10 +300,10 @@
   function makeParticle(x, y, z) {
     return {
       ox: x, oy: y, oz: z,
-      size:   0.7 + Math.random() * 1.5,
+      size:   1.1 + Math.random() * 2.0,
       phase:  Math.random() * Math.PI * 2,
       speed:  0.18 + Math.random() * 0.65,
-      bright: Math.random() < 0.09,
+      bright: Math.random() < 0.12,
       teal:   Math.random() < 0.15
     };
   }

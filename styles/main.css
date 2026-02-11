@@ -7,10 +7,10 @@
 
 /* — Palette — */
 :root {
-  /* Aged parchment tones */
-  --color-bg:           #f3eee4;
-  --color-bg-warm:      #ede6d9;
-  --color-bg-panel:     #f7f3ea;
+  /* Scroll-paper tones */
+  --color-bg:           #efe5d0;
+  --color-bg-warm:      #e8dcc6;
+  --color-bg-panel:     #f2ead8;
 
   /* Text hierarchy — warm near-black to gray */
   --color-text:         #1c1912;
@@ -106,8 +106,8 @@ html {
     /* Lighter veins */
     radial-gradient(ellipse at 28% 62%, rgba(60,105,68,0.12) 0%, transparent 28%),
     radial-gradient(ellipse at 68% 38%, rgba(55,98,62,0.1) 0%, transparent 22%),
-    /* Base gradient */
-    linear-gradient(148deg, #1c3e24, #112a18, #193822, #0e2516, #173220);
+    /* Base gradient — deep polished stone */
+    linear-gradient(148deg, #18361f, #0d2414, #15301d, #0b2112, #132c1b);
 }
 
 
@@ -141,27 +141,52 @@ body {
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
 
-  /* Aged parchment with stain effects */
+  /* ═══ Gilt edge — gold leaf border molding ═══ */
+  border: 4px solid #b49545;
+
+  /* Scroll paper with age stains and fiber texture */
   background:
-    /* Age/coffee stains */
-    radial-gradient(ellipse at 18% 12%, rgba(160,130,80,0.09) 0%, transparent 50%),
-    radial-gradient(ellipse at 82% 18%, rgba(140,110,60,0.07) 0%, transparent 42%),
-    radial-gradient(ellipse at 78% 78%, rgba(150,120,70,0.08) 0%, transparent 45%),
-    radial-gradient(ellipse at 8% 72%, rgba(130,100,50,0.06) 0%, transparent 35%),
-    radial-gradient(ellipse at 50% 45%, rgba(145,115,65,0.04) 0%, transparent 55%),
-    /* Edge darkening vignette */
-    radial-gradient(ellipse at center, transparent 35%, rgba(120,100,60,0.07) 100%),
-    /* Base parchment */
+    /* Horizontal fiber grain (papyrus/scroll feel) */
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 3px,
+      rgba(160,135,85,0.025) 3px,
+      rgba(160,135,85,0.025) 4px
+    ),
+    /* Subtle vertical cross-fibers */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 8px,
+      rgba(145,120,70,0.012) 8px,
+      rgba(145,120,70,0.012) 9px
+    ),
+    /* Age/water stains — larger, warmer, more visible */
+    radial-gradient(ellipse at 15% 10%, rgba(170,130,65,0.14) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 15%, rgba(155,115,55,0.10) 0%, transparent 45%),
+    radial-gradient(ellipse at 75% 80%, rgba(165,125,60,0.12) 0%, transparent 48%),
+    radial-gradient(ellipse at 5% 75%, rgba(145,105,45,0.09) 0%, transparent 38%),
+    radial-gradient(ellipse at 45% 40%, rgba(150,118,58,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 20%, rgba(140,110,50,0.05) 0%, transparent 30%),
+    radial-gradient(ellipse at 30% 65%, rgba(160,125,60,0.07) 0%, transparent 35%),
+    /* Edge darkening — scroll edges darken naturally */
+    radial-gradient(ellipse at center, transparent 30%, rgba(110,88,45,0.12) 100%),
+    /* Base scroll paper */
     var(--color-bg);
 
-  /* Depth: inset vignette + drop shadow against marble */
+  /* Depth: gilt glow, inset vignette, heavy drop shadow */
   box-shadow:
-    inset 0 0 80px rgba(100,85,50,0.07),
-    0 2px 24px rgba(0,0,0,0.28),
-    0 0 60px rgba(0,0,0,0.12);
+    inset 0 0 0 1px rgba(180,160,120,0.15),      /* Inner gold hairline */
+    inset 0 0 120px rgba(100,80,35,0.12),          /* Deep vignette */
+    inset 0 0 40px rgba(80,65,30,0.06),             /* Secondary vignette */
+    0 0 0 1px rgba(80,60,20,0.25),                  /* Outer dark hairline */
+    0 4px 30px rgba(0,0,0,0.35),                    /* Primary drop shadow */
+    0 0 80px rgba(0,0,0,0.18),                      /* Ambient shadow */
+    0 0 20px rgba(180,150,70,0.15);                  /* Gilt glow onto marble */
 }
 
-/* Parchment grain texture */
+/* Scroll paper grain texture — coarser, more visible */
 .page::after {
   content: '';
   position: fixed;
@@ -169,11 +194,11 @@ body {
   left: var(--frame);
   right: var(--frame);
   bottom: var(--frame);
-  opacity: 0.04;
+  opacity: 0.06;
   pointer-events: none;
   mix-blend-mode: multiply;
   z-index: 9999;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 /* Marble grain texture (covers whole viewport including frame) */
@@ -198,19 +223,19 @@ body::after {
   left: calc(var(--frame) + var(--inner-inset));
   right: calc(var(--frame) + var(--inner-inset));
   bottom: calc(var(--frame) + var(--inner-inset));
-  border: 1px solid var(--color-rule-light);
+  border: 1px solid #a8903c;
   pointer-events: none;
   z-index: 100;
-  opacity: 0.55;
+  opacity: 0.9;
 }
 
 /* Inner second rule for double-line effect */
 .page-frame::before {
   content: '';
   position: absolute;
-  inset: 5px;
-  border: 1px solid var(--color-rule-light);
-  opacity: 0.5;
+  inset: 6px;
+  border: 1px solid #a8903c;
+  opacity: 0.55;
 }
 
 /* Corner flourish SVGs */
@@ -219,20 +244,20 @@ body::after {
   overflow: visible;
 }
 
-.frame-corner--tl { top: -8px; left: -8px; }
-.frame-corner--tr { top: -8px; right: -8px; transform: scaleX(-1); }
-.frame-corner--bl { bottom: -8px; left: -8px; transform: scaleY(-1); }
-.frame-corner--br { bottom: -8px; right: -8px; transform: scale(-1); }
+.frame-corner--tl { top: -10px; left: -10px; }
+.frame-corner--tr { top: -10px; right: -10px; transform: scaleX(-1); }
+.frame-corner--bl { bottom: -10px; left: -10px; transform: scaleY(-1); }
+.frame-corner--br { bottom: -10px; right: -10px; transform: scale(-1); }
 
 /* Side diamond ornaments */
 .frame-diamond {
   position: absolute;
 }
 
-.frame-diamond--top    { top: -8px;    left: 50%; transform: translateX(-50%); }
-.frame-diamond--bottom { bottom: -8px; left: 50%; transform: translateX(-50%); }
-.frame-diamond--left   { left: -8px;   top: 50%;  transform: translateY(-50%); }
-.frame-diamond--right  { right: -8px;  top: 50%;  transform: translateY(-50%); }
+.frame-diamond--top    { top: -10px;   left: 50%; transform: translateX(-50%); }
+.frame-diamond--bottom { bottom: -10px; left: 50%; transform: translateX(-50%); }
+.frame-diamond--left   { left: -10px;  top: 50%;  transform: translateY(-50%); }
+.frame-diamond--right  { right: -10px; top: 50%;  transform: translateY(-50%); }
 
 
 /* — Selection — */
@@ -287,8 +312,8 @@ body::after {
 
 /* — Point Cloud (canvas, driven by JS) — */
 .hero__cloud {
-  width: clamp(100px, 16vw, 170px);
-  height: clamp(100px, 16vw, 170px);
+  width: clamp(150px, 24vw, 260px);
+  height: clamp(150px, 24vw, 260px);
   margin: 0 auto 1.25rem;
   display: block;
 }
@@ -374,33 +399,20 @@ body::after {
 
 
 /* ============================================================
-   ABOUT — Broadside Frame
+   ABOUT
    ============================================================ */
-.about__frame {
+.about__content {
   max-width: var(--content-narrow);
   width: 100%;
-  padding: clamp(2.5rem, 5vw, 4rem) clamp(2.75rem, 5.5vw, 4.5rem);
-  border: 1px solid var(--color-rule);
-  background: var(--color-bg-panel);
   position: relative;
-  box-shadow: 0 2px 40px rgba(28, 26, 21, 0.04);
 }
 
-/* Inner border — double-frame broadside effect */
-.about__frame::after {
-  content: '';
-  position: absolute;
-  inset: 5px;
-  border: 1px solid var(--color-rule-faint);
-  pointer-events: none;
-}
-
-.about__text p {
+.about__content p {
   margin-bottom: 1.25em;
   color: var(--color-text-body);
 }
 
-.about__text p:last-child {
+.about__content p:last-of-type {
   margin-bottom: 0;
 }
 
@@ -408,7 +420,7 @@ body::after {
 .about__mark {
   display: block;
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 2.5rem;
   font-size: 0.55rem;
   letter-spacing: 0.3em;
   color: var(--color-rule);
@@ -420,7 +432,6 @@ body::after {
    DIRECTIONS — Three-Column Broadside Layout
    ============================================================ */
 .section--directions {
-  background: var(--color-bg-warm);
   padding-top: clamp(2.5rem, 5vh, 4rem);
   padding-bottom: clamp(1.5rem, 3vh, 2.5rem);
 }
@@ -616,6 +627,10 @@ body::after {
     transition-delay: 0s;
   }
 
+  .page {
+    border-width: 2px;
+  }
+
   /* Simplify frame on tablet/mobile */
   .frame-corner,
   .frame-diamond {
@@ -630,12 +645,8 @@ body::after {
     --inner-inset: 5px;
   }
 
-  .about__frame {
-    padding: clamp(1.5rem, 4vw, 2rem);
-  }
-
-  .about__frame::after {
-    inset: 3px;
+  .page {
+    border-width: 1px;
   }
 
   .hero__title {
