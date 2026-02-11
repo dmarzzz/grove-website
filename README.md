@@ -2,6 +2,8 @@
 
 A research organism housed in a former Catholic school in Greenpoint, Brooklyn. Part school, part convent, part sovereign R&D lab. Engineering spaces, tools, and processes to catalyze and capture information between minds.
 
+<!-- deploy trigger -->
+
 ## Run Locally
 
 ```
