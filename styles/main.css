@@ -585,31 +585,28 @@ body::after {
    RESPONSIVE
    ============================================================ */
 
-/* Tablet & below: single column, relaxed snap */
+/* Tablet & below: single column */
 @media (max-width: 900px) {
   :root {
     --frame: 12px;
     --inner-inset: 8px;
   }
 
-  .page {
-    scroll-snap-type: y proximity;
-  }
-
   .section {
-    height: auto;
-    min-height: 100%;
+    height: 100%;
   }
 
+  /* Accordion for direction cards */
   .directions__grid {
     grid-template-columns: 1fr;
     gap: 0;
   }
 
   .direction {
-    padding: clamp(1rem, 2.5vh, 1.5rem) 0;
+    padding: clamp(0.75rem, 2vh, 1.25rem) 0;
     border-left: none;
     border-bottom: 1px solid var(--color-rule-faint);
+    cursor: pointer;
   }
 
   .direction:first-child {
@@ -619,6 +616,46 @@ body::after {
   .direction:last-child {
     padding-bottom: 0;
     border-bottom: none;
+  }
+
+  .direction__numeral {
+    font-size: 1.6rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .direction__title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .direction__title::after {
+    content: '+';
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+    margin-left: 1rem;
+    transition: transform 0.3s ease;
+  }
+
+  .direction.expanded .direction__title::after {
+    content: '\2212';
+  }
+
+  .direction__body {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+    margin-top: 0;
+  }
+
+  .direction.expanded .direction__body {
+    max-height: 20rem;
+    opacity: 1;
+    margin-top: 0.65rem;
   }
 
   /* Reset stagger delays on mobile */

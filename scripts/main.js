@@ -337,11 +337,35 @@
 
 
   /* ═══════════════════════════════════════════════════════════
+     MOBILE ACCORDION — Direction cards expand/collapse
+     ═══════════════════════════════════════════════════════════ */
+  function initAccordion() {
+    var mq = window.matchMedia('(max-width: 900px)');
+    if (!mq.matches) return;
+
+    var cards = document.querySelectorAll('.direction');
+    if (!cards.length) return;
+
+    /* First card expanded by default */
+    cards[0].classList.add('expanded');
+
+    cards.forEach(function (card) {
+      card.addEventListener('click', function () {
+        var isOpen = card.classList.contains('expanded');
+        cards.forEach(function (c) { c.classList.remove('expanded'); });
+        if (!isOpen) card.classList.add('expanded');
+      });
+    });
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════
      INIT
      ═══════════════════════════════════════════════════════════ */
   function init() {
     initFadeIn();
     initPointCloud();
+    initAccordion();
   }
 
   if (document.readyState === 'loading') {

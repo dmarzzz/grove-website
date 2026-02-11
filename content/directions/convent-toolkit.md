@@ -1,5 +1,5 @@
 ---
-title: The Convent Toolkit
+title: Local AI Scientist
 numeral: I
 descriptor: A portable research kit — from conference to pop-up city to living room.
 ---
