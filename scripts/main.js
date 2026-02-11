@@ -511,6 +511,338 @@
 
 
   /* ═══════════════════════════════════════════════════════════
+     CYBERNETIC MARGINALIA — Procedural growth from frame corners
+     Recursive branching (vine-like) with sacred geometry nodes,
+     architectural grid traces, and mycelium filament terminals.
+     Each branch is a single quadratic bezier → reliable animation.
+     ═══════════════════════════════════════════════════════════ */
+  function initMarginalia() {
+    var frame = document.querySelector('.page-frame');
+    if (!frame) return;
+    if (window.innerWidth <= 900) return;
+
+    /* Deterministic PRNG (mulberry32) */
+    function mulberry32(a) {
+      return function () {
+        a |= 0; a = a + 0x6D2B79F5 | 0;
+        var t = Math.imul(a ^ a >>> 15, 1 | a);
+        t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    var NS = 'http://www.w3.org/2000/svg';
+    var rect = frame.getBoundingClientRect();
+    var W = rect.width, H = rect.height;
+
+    /* Create SVG container */
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('class', 'marginalia');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('width', W);
+    svg.setAttribute('height', H);
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    svg.style.cssText = 'position:absolute;top:0;left:0;';
+
+    /* ── Helper: create a single SVG <path> and append ── */
+    function addPath(d, cls, styles) {
+      var p = document.createElementNS(NS, 'path');
+      p.setAttribute('d', d);
+      p.setAttribute('class', cls);
+      if (styles) {
+        for (var k in styles) p.style.setProperty(k, styles[k]);
+      }
+      svg.appendChild(p);
+      return p;
+    }
+
+    /* ── Recursive branching — each call creates one bezier path ── */
+    function growBranch(x, y, angle, length, depth, maxDepth, rng, delay, paths) {
+      if (depth > maxDepth || length < 4) return;
+
+      /* Endpoint + control point for organic curve */
+      var wobble = length * (0.15 + rng() * 0.15);
+      var perpAngle = angle + (rng() > 0.5 ? 1 : -1) * (0.3 + rng() * 0.4);
+      var cx = x + Math.cos(angle) * length * 0.5 + Math.cos(perpAngle) * wobble;
+      var cy = y + Math.sin(angle) * length * 0.5 + Math.sin(perpAngle) * wobble;
+      var ex = x + Math.cos(angle) * length;
+      var ey = y + Math.sin(angle) * length;
+
+      var d = 'M' + x.toFixed(1) + ',' + y.toFixed(1)
+            + 'Q' + cx.toFixed(1) + ',' + cy.toFixed(1)
+            + ' ' + ex.toFixed(1) + ',' + ey.toFixed(1);
+
+      var depthClass = 'marginalia__vine--d' + Math.min(depth, 4);
+      paths.push({ d: d, x: ex, y: ey, angle: angle, depth: depth, delay: delay, cls: depthClass });
+
+      /* Sub-branches */
+      var branchCount = depth === 0 ? 2 + Math.floor(rng() * 2) : 1 + Math.floor(rng() * 2);
+      if (depth >= maxDepth - 1) branchCount = Math.min(branchCount, 1);
+
+      for (var i = 0; i < branchCount; i++) {
+        var spread = 0.4 + rng() * 0.6;
+        var newAngle = angle + (rng() - 0.5) * spread * 2;
+        var shrink = 0.65 + rng() * 0.18;
+        var newLen = length * shrink;
+        var newDelay = delay + 0.3 + rng() * 0.4;
+        growBranch(ex, ey, newAngle, newLen, depth + 1, maxDepth, rng, newDelay, paths);
+      }
+    }
+
+    /* ── Sacred geometry: golden spiral fragment ── */
+    function spiralPath(cx, cy, radius, rng) {
+      var phi = 1.618033988749;
+      var a0 = rng() * Math.PI * 2;
+      var d = '';
+      for (var i = 0; i <= 14; i++) {
+        var t = i / 14;
+        var r = radius * Math.pow(phi, -t * 1.8);
+        var a = a0 + t * Math.PI * 2;
+        d += (i === 0 ? 'M' : 'L') + (cx + Math.cos(a) * r).toFixed(1) + ',' + (cy + Math.sin(a) * r).toFixed(1);
+      }
+      return d;
+    }
+
+    /* ── Sacred geometry: concentric diamond ── */
+    function diamondPath(cx, cy, size) {
+      var d = '';
+      for (var s = 0; s < 2; s++) {
+        var r = size * (s === 0 ? 1 : 0.5);
+        d += 'M' + cx.toFixed(1) + ',' + (cy - r).toFixed(1)
+           + 'L' + (cx + r).toFixed(1) + ',' + cy.toFixed(1)
+           + 'L' + cx.toFixed(1) + ',' + (cy + r).toFixed(1)
+           + 'L' + (cx - r).toFixed(1) + ',' + cy.toFixed(1) + 'Z';
+      }
+      return d;
+    }
+
+    /* ── Sacred geometry: flower-of-life fragment (overlapping circles) ── */
+    function flowerCircles(cx, cy, radius, rng) {
+      var count = 3 + Math.floor(rng() * 2);
+      var a0 = rng() * Math.PI * 2;
+      var paths = [];
+      for (var i = 0; i < count; i++) {
+        var a = a0 + (i / count) * Math.PI * 2;
+        var ox = cx + Math.cos(a) * radius * 0.5;
+        var oy = cy + Math.sin(a) * radius * 0.5;
+        var c = document.createElementNS(NS, 'circle');
+        c.setAttribute('cx', ox.toFixed(1));
+        c.setAttribute('cy', oy.toFixed(1));
+        c.setAttribute('r', radius.toFixed(1));
+        c.setAttribute('class', 'marginalia__node');
+        svg.appendChild(c);
+      }
+    }
+
+    /* ── Architectural grid traces near a point ── */
+    function addGridTraces(x, y, size, rng, fadeDelay) {
+      var count = 2 + Math.floor(rng() * 3);
+      for (var i = 0; i < count; i++) {
+        var horiz = rng() > 0.5;
+        var len = size * (0.4 + rng() * 0.6);
+        var ox = x + (rng() - 0.5) * size;
+        var oy = y + (rng() - 0.5) * size;
+        var d;
+        if (horiz) {
+          d = 'M' + ox.toFixed(1) + ',' + oy.toFixed(1) + 'L' + (ox + len).toFixed(1) + ',' + oy.toFixed(1);
+          /* Right-angle tick */
+          d += 'M' + ox.toFixed(1) + ',' + (oy - 4).toFixed(1) + 'L' + ox.toFixed(1) + ',' + oy.toFixed(1);
+        } else {
+          d = 'M' + ox.toFixed(1) + ',' + oy.toFixed(1) + 'L' + ox.toFixed(1) + ',' + (oy + len).toFixed(1);
+          d += 'M' + (ox - 4).toFixed(1) + ',' + oy.toFixed(1) + 'L' + ox.toFixed(1) + ',' + oy.toFixed(1);
+        }
+        addPath(d, 'marginalia__grid marginalia__fade-in', { '--fade-delay': fadeDelay + 's' });
+      }
+    }
+
+    /* ── Mycelium filaments from a terminal ── */
+    function addFilaments(x, y, angle, rng, delay) {
+      var count = 3 + Math.floor(rng() * 3);
+      for (var i = 0; i < count; i++) {
+        var a = angle + (rng() - 0.5) * 2.2;
+        var len = 14 + rng() * 24;
+        var mx = x + Math.cos(a) * len * 0.45 + (rng() - 0.5) * 6;
+        var my = y + Math.sin(a) * len * 0.45 + (rng() - 0.5) * 6;
+        var ex = x + Math.cos(a) * len;
+        var ey = y + Math.sin(a) * len;
+        var d = 'M' + x.toFixed(1) + ',' + y.toFixed(1)
+              + 'Q' + mx.toFixed(1) + ',' + my.toFixed(1)
+              + ' ' + ex.toFixed(1) + ',' + ey.toFixed(1);
+        addPath(d, 'marginalia__filament marginalia__draw', {
+          '--draw-dur': (0.8 + rng() * 0.6).toFixed(1) + 's',
+          '--draw-delay': (delay + 0.5 + rng() * 0.5).toFixed(1) + 's'
+        });
+      }
+    }
+
+
+    /* ════════════════════════════════════════════════════
+       CORNER GROWTH SYSTEMS
+       Each corner: multiple starting shoots → recursive branches
+       → geometry nodes at forks → grid traces → filaments at tips
+       ════════════════════════════════════════════════════ */
+
+    var cornerDefs = [
+      /* ── Bottom-left: primary growth, richest — "root system" ── */
+      {
+        seed: 12345,
+        shoots: [
+          { angle: -1.45, len: 140 }, /* up along left edge — long reach */
+          { angle: -1.20, len: 110 }, /* up and slightly right */
+          { angle: -0.90, len: 90 },  /* diagonal into page */
+          { angle: -0.55, len: 80 },  /* more rightward diagonal */
+          { angle: -0.15, len: 120 }, /* along bottom edge rightward */
+          { angle: 0.10,  len: 85 },  /* slightly below horizontal */
+        ],
+        origin: function () { return { x: 10, y: H - 10 }; },
+        maxDepth: 6,
+        baseDelay: 0
+      },
+      /* ── Top-right: secondary growth — "canopy" ── */
+      {
+        seed: 67890,
+        shoots: [
+          { angle: 1.50, len: 110 },  /* down along right edge */
+          { angle: 1.85, len: 85 },   /* down and slightly left */
+          { angle: 2.20, len: 70 },   /* more leftward diagonal */
+          { angle: 2.80, len: 95 },   /* along top edge leftward */
+          { angle: 3.05, len: 65 },   /* further along top */
+        ],
+        origin: function () { return { x: W - 10, y: 10 }; },
+        maxDepth: 5,
+        baseDelay: 1.5
+      },
+      /* ── Top-left: bridging tendrils ── */
+      {
+        seed: 11111,
+        shoots: [
+          { angle: 0.40, len: 70 },   /* diagonal down-right */
+          { angle: 0.80, len: 55 },   /* steeper diagonal */
+          { angle: 1.45, len: 65 },   /* down along left edge */
+          { angle: -0.20, len: 50 },  /* along top edge rightward */
+        ],
+        origin: function () { return { x: 10, y: 10 }; },
+        maxDepth: 4,
+        baseDelay: 2.5
+      },
+      /* ── Bottom-right: geometric focus ── */
+      {
+        seed: 99999,
+        shoots: [
+          { angle: -1.70, len: 80 },  /* up along right edge */
+          { angle: -2.10, len: 65 },  /* up and leftward */
+          { angle: -2.60, len: 55 },  /* more leftward */
+          { angle: 3.00, len: 75 },   /* along bottom leftward */
+        ],
+        origin: function () { return { x: W - 10, y: H - 10 }; },
+        maxDepth: 4,
+        baseDelay: 2.5,
+        geometricFocus: true
+      }
+    ];
+
+
+    for (var ci = 0; ci < cornerDefs.length; ci++) {
+      var corner = cornerDefs[ci];
+      var rng = mulberry32(corner.seed);
+      var orig = corner.origin();
+
+      for (var si = 0; si < corner.shoots.length; si++) {
+        var shoot = corner.shoots[si];
+        var allPaths = [];
+
+        /* Grow recursive branches */
+        growBranch(orig.x, orig.y, shoot.angle, shoot.len, 0, corner.maxDepth, rng, corner.baseDelay, allPaths);
+
+        /* Create SVG elements for each branch path */
+        for (var pi = 0; pi < allPaths.length; pi++) {
+          var bp = allPaths[pi];
+          addPath(bp.d, bp.cls + ' marginalia__draw', {
+            '--draw-dur': (1.0 + bp.depth * 0.3).toFixed(1) + 's',
+            '--draw-delay': bp.delay.toFixed(2) + 's'
+          });
+
+          /* Sacred geometry at branch forks (depth 0-2 only) */
+          if (bp.depth <= 2 && rng() < 0.55) {
+            var nodeDelay = bp.delay + 0.8;
+            var nodeType = rng();
+            if (corner.geometricFocus || nodeType < 0.35) {
+              addPath(diamondPath(bp.x, bp.y, 5 + rng() * 5),
+                'marginalia__node marginalia__fade-in', { '--fade-delay': nodeDelay.toFixed(1) + 's' });
+            } else if (nodeType < 0.65) {
+              addPath(spiralPath(bp.x, bp.y, 7 + rng() * 6, rng),
+                'marginalia__node marginalia__fade-in', { '--fade-delay': nodeDelay.toFixed(1) + 's' });
+            } else {
+              flowerCircles(bp.x, bp.y, 6 + rng() * 4, rng);
+            }
+          }
+
+          /* Grid traces near mid-depth branches */
+          if (bp.depth >= 1 && bp.depth <= 3 && rng() < 0.3) {
+            addGridTraces(bp.x, bp.y, 20 + rng() * 15, rng, bp.delay + 0.6);
+          }
+
+          /* Mycelium filaments at deep terminals */
+          if (bp.depth >= corner.maxDepth - 1 && rng() < 0.6) {
+            addFilaments(bp.x, bp.y, bp.angle, rng, bp.delay);
+          }
+        }
+      }
+    }
+
+    /* Append to DOM */
+    frame.appendChild(svg);
+
+    /* ── Measure all draw-animated paths and set dasharray ── */
+    var drawPaths = svg.querySelectorAll('.marginalia__draw');
+    for (var di = 0; di < drawPaths.length; di++) {
+      var el = drawPaths[di];
+      try {
+        var len = el.getTotalLength();
+        if (len > 0) {
+          el.style.setProperty('--path-len', len.toFixed(1));
+        } else {
+          el.classList.remove('marginalia__draw');
+        }
+      } catch (e) {
+        el.classList.remove('marginalia__draw');
+      }
+    }
+
+    /* ── Ambient animations — kick in after draw completes ── */
+    var ambientRng = mulberry32(77777);
+    setTimeout(function () {
+      /* Breathing on ~50% of geometry nodes */
+      var nodes = svg.querySelectorAll('.marginalia__node');
+      for (var ni = 0; ni < nodes.length; ni++) {
+        if (ambientRng() < 0.5) {
+          nodes[ni].classList.add('marginalia__breathe');
+          nodes[ni].style.setProperty('--breathe-dur', (6 + ambientRng() * 6).toFixed(1) + 's');
+        }
+      }
+
+      /* Drift on ~40% of filaments */
+      var filaments = svg.querySelectorAll('.marginalia__filament');
+      for (var fi = 0; fi < filaments.length; fi++) {
+        if (ambientRng() < 0.4) {
+          filaments[fi].classList.add('marginalia__drift');
+          filaments[fi].style.setProperty('--drift-dur', (7 + ambientRng() * 6).toFixed(1) + 's');
+        }
+      }
+
+      /* Glow pulse on ~30% of primary vine paths */
+      var vines = svg.querySelectorAll('[class*="marginalia__vine--d0"], [class*="marginalia__vine--d1"]');
+      for (var vi = 0; vi < vines.length; vi++) {
+        if (ambientRng() < 0.3) {
+          vines[vi].classList.add('marginalia__pulse');
+          vines[vi].style.setProperty('--pulse-dur', (10 + ambientRng() * 8).toFixed(1) + 's');
+        }
+      }
+    }, 6500);
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════
      MOBILE ACCORDION — Direction cards expand/collapse
      ═══════════════════════════════════════════════════════════ */
   function initAccordion() {
@@ -588,6 +920,7 @@
   function init() {
     initFadeIn();
     initPointCloud();
+    initMarginalia();
     initAccordion();
     initPaperGlitch();
   }

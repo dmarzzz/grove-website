@@ -260,6 +260,126 @@ body::after {
 .frame-diamond--right  { right: -10px; top: 50%;  transform: translateY(-50%); }
 
 
+/* ============================================================
+   MARGINALIA — Cybernetic growth system emerging from corners
+   ============================================================ */
+.marginalia {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.marginalia path,
+.marginalia circle,
+.marginalia line {
+  stroke: #a8903c;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Primary vine/dendrite paths — depth-based weight */
+.marginalia__vine--d0 { opacity: 0.75; stroke-width: 1.6; }
+.marginalia__vine--d1 { opacity: 0.65; stroke-width: 1.3; }
+.marginalia__vine--d2 { opacity: 0.50; stroke-width: 1.0; }
+.marginalia__vine--d3 { opacity: 0.38; stroke-width: 0.7; }
+.marginalia__vine--d4 { opacity: 0.28; stroke-width: 0.5; }
+
+/* Sacred geometry nodes */
+.marginalia__node {
+  opacity: 0.55;
+  stroke-width: 0.8;
+}
+
+/* Architectural grid traces */
+.marginalia__grid {
+  opacity: 0.28;
+  stroke-width: 0.5;
+  stroke-dasharray: 3 5;
+}
+
+/* Mycelium terminal filaments */
+.marginalia__filament {
+  opacity: 0.25;
+  stroke-width: 0.4;
+}
+
+/* Draw-in animation — each path is a single continuous curve */
+@keyframes drawMarginalia {
+  from { stroke-dashoffset: var(--path-len); }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes fadeMarginalia {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.marginalia__draw {
+  stroke-dasharray: var(--path-len);
+  stroke-dashoffset: var(--path-len);
+  animation: drawMarginalia var(--draw-dur, 2s) ease-out var(--draw-delay, 0s) forwards;
+}
+
+.marginalia__fade-in {
+  opacity: 0;
+  animation: fadeMarginalia 1.5s ease-out var(--fade-delay, 2s) forwards;
+}
+
+/* Post-draw ambient animations */
+@keyframes breatheNode {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 0.75; }
+}
+
+@keyframes driftFilament {
+  0%, 100% { opacity: 0.18; }
+  50%      { opacity: 0.38; }
+}
+
+@keyframes pulseVine {
+  0%, 100% { opacity: var(--pulse-base, 0.65); }
+  50%      { opacity: var(--pulse-peak, 0.85); }
+}
+
+.marginalia__breathe {
+  animation: breatheNode var(--breathe-dur, 8s) ease-in-out infinite;
+}
+
+.marginalia__drift {
+  animation: driftFilament var(--drift-dur, 10s) ease-in-out infinite;
+}
+
+.marginalia__pulse {
+  animation: pulseVine var(--pulse-dur, 14s) ease-in-out infinite;
+}
+
+/* Reduced motion: skip all animation, show final state */
+@media (prefers-reduced-motion: reduce) {
+  .marginalia__draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+  .marginalia__fade-in {
+    animation: none;
+    opacity: 1;
+  }
+  .marginalia__breathe,
+  .marginalia__drift,
+  .marginalia__pulse {
+    animation: none;
+  }
+}
+
+/* Hide on tablet/mobile (same breakpoint as corners/diamonds) */
+@media (max-width: 900px) {
+  .marginalia {
+    display: none;
+  }
+}
+
+
 /* — Selection — */
 ::selection {
   background: var(--color-selection-bg);
