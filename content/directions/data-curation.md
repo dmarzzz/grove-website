@@ -1,7 +1,7 @@
 ---
-title: Data Curation
+title: The Living Library
 numeral: II
-descriptor: Building a living archive of unique datasets for open model training.
+descriptor: A collective mind — not shelves of books, but a web of linked knowledge.
 ---
 
-Identifying, collecting, and structuring distinctive data sources absent from standard training corpora. The goal: a curated, growing archive purpose-built for fine-tuning open-source models. Seeding the commons with signal that matters.
+Everyone contributes to curating, linking, and structuring shared information. Explore parallels, surface hidden similarities, and construct a virtual mind that grows richer with every connection. The library's core asset is not any single document — it is the evolving map of relationships between ideas.

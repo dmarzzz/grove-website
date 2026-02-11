@@ -1,7 +1,7 @@
 ---
 title: The Convent Toolkit
 numeral: I
-descriptor: Everything needed to run a sovereign R&D lab — on your own hardware.
+descriptor: A portable research kit — from conference to pop-up city to living room.
 ---
 
-A local-first starter kit for small research communities. Record conversations, transcribe whiteboards, turn discussions into linked documents, grow a shared knowledge base over time. All inference runs locally — laptops, phones, no cloud dependencies. Your lab, your data, your stack.
+A tool that travels. Record conversations, capture whiteboard sessions, and produce linked artifacts — all running locally on your own hardware. No remote servers, no cloud dependencies. You own the data, you control the inference. Take it to a conference, a pop-up city, or a living room and start generating knowledge immediately.

@@ -1,6 +1,7 @@
 /* ============================================================
    The Grove — Stylesheet
    A research organism in a former Catholic school.
+   Manuscript page treatment with dark marble frame.
    ============================================================ */
 
 
@@ -60,6 +61,10 @@
   --content-wide:   1060px;
   --section-pad-y:  clamp(3rem, 6vh, 5rem);
   --section-pad-x:  clamp(1.5rem, 4vw, 2.5rem);
+
+  /* Manuscript frame dimensions */
+  --frame:        clamp(18px, 2.8vmin, 38px);
+  --inner-inset:  clamp(12px, 1.8vmin, 24px);
 }
 
 
@@ -71,35 +76,163 @@
 }
 
 html {
-  scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
+  height: 100%;
+  overflow: hidden;
   -webkit-text-size-adjust: 100%;
+
+  /* ═══ Dark Green Marble / Malachite Background ═══ */
+  background:
+    /* Fine veining lines */
+    repeating-linear-gradient(
+      138deg,
+      transparent 0px,
+      transparent 20px,
+      rgba(45,85,50,0.07) 20px,
+      rgba(45,85,50,0.07) 21px
+    ),
+    repeating-linear-gradient(
+      112deg,
+      transparent 0px,
+      transparent 28px,
+      rgba(55,95,60,0.05) 28px,
+      rgba(55,95,60,0.05) 29px
+    ),
+    /* Cloud veining */
+    radial-gradient(ellipse at 15% 30%, rgba(35,72,40,0.45) 0%, transparent 50%),
+    radial-gradient(ellipse at 78% 12%, rgba(22,58,28,0.5) 0%, transparent 45%),
+    radial-gradient(ellipse at 88% 72%, rgba(32,68,38,0.35) 0%, transparent 42%),
+    radial-gradient(ellipse at 38% 88%, rgba(28,62,32,0.42) 0%, transparent 48%),
+    radial-gradient(ellipse at 58% 48%, rgba(42,78,48,0.2) 0%, transparent 58%),
+    /* Lighter veins */
+    radial-gradient(ellipse at 28% 62%, rgba(60,105,68,0.12) 0%, transparent 28%),
+    radial-gradient(ellipse at 68% 38%, rgba(55,98,62,0.1) 0%, transparent 22%),
+    /* Base gradient */
+    linear-gradient(148deg, #1c3e24, #112a18, #193822, #0e2516, #173220);
 }
 
 
 /* — Base — */
 body {
+  height: 100%;
+  overflow: hidden;
   font-family: var(--font-body);
   font-size: var(--size-body);
   line-height: var(--leading-body);
   color: var(--color-text-body);
-  background-color: var(--color-bg);
+  background: transparent;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 
-/* — Texture & Atmosphere — */
+/* ============================================================
+   MANUSCRIPT PAGE — Scrolling parchment container
+   ============================================================ */
+.page {
+  position: fixed;
+  top: var(--frame);
+  left: var(--frame);
+  right: var(--frame);
+  bottom: var(--frame);
+  z-index: 1;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+
+  /* Aged parchment with stain effects */
+  background:
+    /* Age/coffee stains */
+    radial-gradient(ellipse at 18% 12%, rgba(160,130,80,0.09) 0%, transparent 50%),
+    radial-gradient(ellipse at 82% 18%, rgba(140,110,60,0.07) 0%, transparent 42%),
+    radial-gradient(ellipse at 78% 78%, rgba(150,120,70,0.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 8% 72%, rgba(130,100,50,0.06) 0%, transparent 35%),
+    radial-gradient(ellipse at 50% 45%, rgba(145,115,65,0.04) 0%, transparent 55%),
+    /* Edge darkening vignette */
+    radial-gradient(ellipse at center, transparent 35%, rgba(120,100,60,0.07) 100%),
+    /* Base parchment */
+    var(--color-bg);
+
+  /* Depth: inset vignette + drop shadow against marble */
+  box-shadow:
+    inset 0 0 80px rgba(100,85,50,0.07),
+    0 2px 24px rgba(0,0,0,0.28),
+    0 0 60px rgba(0,0,0,0.12);
+}
+
+/* Parchment grain texture */
+.page::after {
+  content: '';
+  position: fixed;
+  top: var(--frame);
+  left: var(--frame);
+  right: var(--frame);
+  bottom: var(--frame);
+  opacity: 0.04;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Marble grain texture (covers whole viewport including frame) */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
-  opacity: 0.04;
+  opacity: 0.025;
   pointer-events: none;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
   z-index: 10000;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
+
+
+/* ============================================================
+   ORNAMENTAL FRAME — Double-rule with corner flourishes
+   ============================================================ */
+.page-frame {
+  position: fixed;
+  top: calc(var(--frame) + var(--inner-inset));
+  left: calc(var(--frame) + var(--inner-inset));
+  right: calc(var(--frame) + var(--inner-inset));
+  bottom: calc(var(--frame) + var(--inner-inset));
+  border: 1px solid var(--color-rule-light);
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0.55;
+}
+
+/* Inner second rule for double-line effect */
+.page-frame::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px solid var(--color-rule-light);
+  opacity: 0.5;
+}
+
+/* Corner flourish SVGs */
+.frame-corner {
+  position: absolute;
+  overflow: visible;
+}
+
+.frame-corner--tl { top: -8px; left: -8px; }
+.frame-corner--tr { top: -8px; right: -8px; transform: scaleX(-1); }
+.frame-corner--bl { bottom: -8px; left: -8px; transform: scaleY(-1); }
+.frame-corner--br { bottom: -8px; right: -8px; transform: scale(-1); }
+
+/* Side diamond ornaments */
+.frame-diamond {
+  position: absolute;
+}
+
+.frame-diamond--top    { top: -8px;    left: 50%; transform: translateX(-50%); }
+.frame-diamond--bottom { bottom: -8px; left: 50%; transform: translateX(-50%); }
+.frame-diamond--left   { left: -8px;   top: 50%;  transform: translateY(-50%); }
+.frame-diamond--right  { right: -8px;  top: 50%;  transform: translateY(-50%); }
 
 
 /* — Selection — */
@@ -109,16 +242,16 @@ body::after {
 }
 
 
-/* — Scrollbar — */
-::-webkit-scrollbar       { width: 6px; }
-::-webkit-scrollbar-track  { background: var(--color-bg); }
-::-webkit-scrollbar-thumb  { background: var(--color-rule-light); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--color-rule); }
+/* — Scrollbar (on .page) — */
+.page::-webkit-scrollbar       { width: 5px; }
+.page::-webkit-scrollbar-track  { background: transparent; }
+.page::-webkit-scrollbar-thumb  { background: var(--color-rule-light); border-radius: 3px; }
+.page::-webkit-scrollbar-thumb:hover { background: var(--color-rule); }
 
 
 /* — Sections — */
 .section {
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -128,7 +261,6 @@ body::after {
   scroll-snap-stop: always;
   position: relative;
   overflow: hidden;
-  box-shadow: inset 0 0 100px 20px rgba(20, 18, 10, 0.035);
 }
 
 
@@ -444,13 +576,18 @@ body::after {
 
 /* Tablet & below: single column, relaxed snap */
 @media (max-width: 900px) {
-  html {
+  :root {
+    --frame: 12px;
+    --inner-inset: 8px;
+  }
+
+  .page {
     scroll-snap-type: y proximity;
   }
 
   .section {
     height: auto;
-    min-height: 100vh;
+    min-height: 100%;
   }
 
   .directions__grid {
@@ -478,10 +615,21 @@ body::after {
   .directions__grid .direction.fade-in:nth-child(3) {
     transition-delay: 0s;
   }
+
+  /* Simplify frame on tablet/mobile */
+  .frame-corner,
+  .frame-diamond {
+    display: none;
+  }
 }
 
 /* Small screens */
 @media (max-width: 600px) {
+  :root {
+    --frame: 8px;
+    --inner-inset: 5px;
+  }
+
   .about__frame {
     padding: clamp(1.5rem, 4vw, 2rem);
   }

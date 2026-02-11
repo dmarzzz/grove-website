@@ -15,6 +15,7 @@
       els.forEach(function (el) { el.classList.add('visible'); });
       return;
     }
+    var scrollRoot = document.querySelector('.page') || null;
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
@@ -22,7 +23,7 @@
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.15 });
+    }, { threshold: 0.15, root: scrollRoot });
     els.forEach(function (el) { observer.observe(el); });
   }
 
