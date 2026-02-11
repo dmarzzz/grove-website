@@ -130,10 +130,10 @@ body {
    ============================================================ */
 .page {
   position: fixed;
-  top: var(--frame);
-  left: var(--frame);
-  right: var(--frame);
-  bottom: var(--frame);
+  top: calc(var(--frame) + env(safe-area-inset-top, 0px));
+  left: calc(var(--frame) + env(safe-area-inset-left, 0px));
+  right: calc(var(--frame) + env(safe-area-inset-right, 0px));
+  bottom: calc(var(--frame) + env(safe-area-inset-bottom, 0px));
   z-index: 1;
 
   overflow-y: auto;
@@ -190,10 +190,10 @@ body {
 .page::after {
   content: '';
   position: fixed;
-  top: var(--frame);
-  left: var(--frame);
-  right: var(--frame);
-  bottom: var(--frame);
+  top: calc(var(--frame) + env(safe-area-inset-top, 0px));
+  left: calc(var(--frame) + env(safe-area-inset-left, 0px));
+  right: calc(var(--frame) + env(safe-area-inset-right, 0px));
+  bottom: calc(var(--frame) + env(safe-area-inset-bottom, 0px));
   opacity: 0.06;
   pointer-events: none;
   mix-blend-mode: multiply;
@@ -219,10 +219,10 @@ body::after {
    ============================================================ */
 .page-frame {
   position: fixed;
-  top: calc(var(--frame) + var(--inner-inset));
-  left: calc(var(--frame) + var(--inner-inset));
-  right: calc(var(--frame) + var(--inner-inset));
-  bottom: calc(var(--frame) + var(--inner-inset));
+  top: calc(var(--frame) + var(--inner-inset) + env(safe-area-inset-top, 0px));
+  left: calc(var(--frame) + var(--inner-inset) + env(safe-area-inset-left, 0px));
+  right: calc(var(--frame) + var(--inner-inset) + env(safe-area-inset-right, 0px));
+  bottom: calc(var(--frame) + var(--inner-inset) + env(safe-area-inset-bottom, 0px));
   border: 1px solid #a8903c;
   pointer-events: none;
   z-index: 100;
@@ -752,6 +752,21 @@ body::after {
   .hero__cloud {
     width: 75vw;
     height: 75vw;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero__tagline {
+    font-size: clamp(0.85rem, 3.5vw, 1.05rem);
+    max-width: 85vw;
+    padding: 0 0.5rem;
+    line-height: 1.5;
+  }
+
+  .hero__descriptors {
+    margin-bottom: 1rem;
+  }
+
+  .hero__rule {
+    margin-bottom: 1rem;
   }
 }
