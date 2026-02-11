@@ -1,0 +1,500 @@
+/* ============================================================
+   The Grove — Stylesheet
+   A research organism in a former Catholic school.
+   ============================================================ */
+
+
+/* — Palette — */
+:root {
+  /* Aged parchment tones */
+  --color-bg:           #f3eee4;
+  --color-bg-warm:      #ede6d9;
+  --color-bg-panel:     #f7f3ea;
+
+  /* Text hierarchy — warm near-black to gray */
+  --color-text:         #1c1912;
+  --color-text-body:    #302d24;
+  --color-text-soft:    #5a5648;
+  --color-text-muted:   #8e8672;
+  --color-text-ghost:   #b5ad98;
+
+  /* Accent — gold-olive (erdtree-touched) */
+  --color-accent:       #5a6038;
+  --color-accent-dark:  #3e4428;
+
+  /* Structural rules — warm gold */
+  --color-rule:         #c0ad88;
+  --color-rule-light:   #d4c5a4;
+  --color-rule-faint:   #e2d8c4;
+
+  /* Selection */
+  --color-selection-bg:   #d4c5a4;
+  --color-selection-text: #1c1912;
+}
+
+
+/* — Typography — */
+:root {
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body:    'Inter', 'Helvetica Neue', sans-serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+  --size-display: clamp(3.5rem, 7.5vw, 6rem);
+  --size-h2:      clamp(1.35rem, 2.2vw, 1.75rem);
+  --size-h3:      clamp(1.05rem, 1.3vw, 1.2rem);
+  --size-body:    clamp(0.9375rem, 1.05vw, 1.0625rem);
+  --size-small:   clamp(0.8125rem, 0.92vw, 0.875rem);
+  --size-tiny:    clamp(0.6875rem, 0.78vw, 0.75rem);
+
+  --leading-body:  1.78;
+  --leading-tight: 1.2;
+
+  --tracking-display: 0.22em;
+  --tracking-caps:    0.14em;
+}
+
+
+/* — Layout — */
+:root {
+  --content-narrow: 640px;
+  --content-wide:   1060px;
+  --section-pad-y:  clamp(3rem, 6vh, 5rem);
+  --section-pad-x:  clamp(1.5rem, 4vw, 2.5rem);
+}
+
+
+/* — Reset — */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+  -webkit-text-size-adjust: 100%;
+}
+
+
+/* — Base — */
+body {
+  font-family: var(--font-body);
+  font-size: var(--size-body);
+  line-height: var(--leading-body);
+  color: var(--color-text-body);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* — Texture & Atmosphere — */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.04;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: 10000;
+}
+
+
+/* — Selection — */
+::selection {
+  background: var(--color-selection-bg);
+  color: var(--color-selection-text);
+}
+
+
+/* — Scrollbar — */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track  { background: var(--color-bg); }
+::-webkit-scrollbar-thumb  { background: var(--color-rule-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-rule); }
+
+
+/* — Sections — */
+.section {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--section-pad-y) var(--section-pad-x);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 100px 20px rgba(20, 18, 10, 0.035);
+}
+
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.section--hero {
+  text-align: center;
+}
+
+/* Subtle radial glow behind hero content */
+.section--hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(255, 253, 248, 0.5) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.hero__content {
+  position: relative;
+  z-index: 1;
+}
+
+/* — Point Cloud (canvas, driven by JS) — */
+.hero__cloud {
+  width: clamp(100px, 16vw, 170px);
+  height: clamp(100px, 16vw, 170px);
+  margin: 0 auto 1.25rem;
+  display: block;
+}
+
+.hero__title {
+  font-family: var(--font-display);
+  font-size: var(--size-display);
+  font-weight: 600;
+  letter-spacing: var(--tracking-display);
+  line-height: var(--leading-tight);
+  color: var(--color-text);
+  margin-bottom: 1.25rem;
+}
+
+.hero__descriptors {
+  font-family: var(--font-body);
+  font-size: var(--size-tiny);
+  font-weight: 400;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 2rem;
+}
+
+.hero__descriptors .dot {
+  margin: 0 0.75em;
+  color: var(--color-rule-light);
+}
+
+/* Ornamental rule with diamond centerpoint */
+.hero__rule {
+  width: 64px;
+  height: 1px;
+  background: var(--color-rule);
+  margin: 0 auto 2rem;
+  position: relative;
+}
+
+.hero__rule::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  background: var(--color-rule);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.hero__tagline {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+  font-style: italic;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--color-text-soft);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* — Scroll Indicator — animated dot on a thin line */
+.hero__scroll {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
+  height: 36px;
+  background: var(--color-rule-faint);
+  z-index: 1;
+}
+
+.hero__scroll-dot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-rule);
+  animation: scroll-dot 2.4s ease-in-out infinite;
+}
+
+
+/* ============================================================
+   ABOUT — Broadside Frame
+   ============================================================ */
+.about__frame {
+  max-width: var(--content-narrow);
+  width: 100%;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(2.75rem, 5.5vw, 4.5rem);
+  border: 1px solid var(--color-rule);
+  background: var(--color-bg-panel);
+  position: relative;
+  box-shadow: 0 2px 40px rgba(28, 26, 21, 0.04);
+}
+
+/* Inner border — double-frame broadside effect */
+.about__frame::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 1px solid var(--color-rule-faint);
+  pointer-events: none;
+}
+
+.about__text p {
+  margin-bottom: 1.25em;
+  color: var(--color-text-body);
+}
+
+.about__text p:last-child {
+  margin-bottom: 0;
+}
+
+/* Ornamental mark centered below prose */
+.about__mark {
+  display: block;
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.55rem;
+  letter-spacing: 0.3em;
+  color: var(--color-rule);
+  user-select: none;
+}
+
+
+/* ============================================================
+   DIRECTIONS — Three-Column Broadside Layout
+   ============================================================ */
+.section--directions {
+  background: var(--color-bg-warm);
+  padding-top: clamp(2.5rem, 5vh, 4rem);
+  padding-bottom: clamp(1.5rem, 3vh, 2.5rem);
+}
+
+.directions__content {
+  max-width: var(--content-wide);
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Heading with flanking ornamental rules */
+.directions__heading {
+  display: flex;
+  align-items: center;
+  gap: 1.5em;
+  margin-bottom: clamp(1.5rem, 3.5vh, 2.5rem);
+}
+
+.directions__heading span {
+  font-family: var(--font-display);
+  font-size: var(--size-h2);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.directions__heading::before {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--color-rule-light));
+}
+
+.directions__heading::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to left, transparent, var(--color-rule-light));
+}
+
+/* Three-column grid */
+.directions__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.direction {
+  padding: 0 clamp(1.25rem, 2.5vw, 2rem);
+  border-left: 1px solid var(--color-rule-faint);
+}
+
+.direction:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.direction:last-child {
+  padding-right: 0;
+}
+
+/* Roman numeral anchors */
+.direction__numeral {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+  font-weight: 300;
+  color: var(--color-rule);
+  line-height: 1;
+  display: block;
+  margin-bottom: 0.65rem;
+}
+
+.direction__title {
+  font-family: var(--font-display);
+  font-size: var(--size-h3);
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.2rem;
+  line-height: 1.3;
+}
+
+.direction__descriptor {
+  font-family: var(--font-display);
+  font-size: var(--size-small);
+  font-style: italic;
+  font-weight: 300;
+  color: var(--color-text-soft);
+  margin-bottom: 0.65rem;
+  line-height: 1.5;
+}
+
+.direction__body {
+  font-size: var(--size-small);
+  line-height: 1.65;
+  color: var(--color-text-muted);
+}
+
+/* Staggered fade-in for columns */
+.directions__grid .direction.fade-in:nth-child(2) { transition-delay: 0.12s; }
+.directions__grid .direction.fade-in:nth-child(3) { transition-delay: 0.24s; }
+
+
+/* ============================================================
+   FOOTER — Monospace digital counterpoint
+   ============================================================ */
+.footer {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--size-tiny);
+  color: var(--color-text-muted);
+  letter-spacing: 0.06em;
+  padding-top: 1rem;
+  margin-top: auto;
+}
+
+.footer .dot {
+  margin: 0 0.6em;
+  color: var(--color-rule-light);
+}
+
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+/* Fade-in on scroll */
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scroll dot drift */
+@keyframes scroll-dot {
+  0%   { top: 0;    opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { top: 32px; opacity: 0; }
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+/* Tablet & below: single column, relaxed snap */
+@media (max-width: 900px) {
+  html {
+    scroll-snap-type: y proximity;
+  }
+
+  .section {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .directions__grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .direction {
+    padding: clamp(1rem, 2.5vh, 1.5rem) 0;
+    border-left: none;
+    border-bottom: 1px solid var(--color-rule-faint);
+  }
+
+  .direction:first-child {
+    padding-top: 0;
+  }
+
+  .direction:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  /* Reset stagger delays on mobile */
+  .directions__grid .direction.fade-in:nth-child(2),
+  .directions__grid .direction.fade-in:nth-child(3) {
+    transition-delay: 0s;
+  }
+}
+
+/* Small screens */
+@media (max-width: 600px) {
+  .about__frame {
+    padding: clamp(1.5rem, 4vw, 2rem);
+  }
+
+  .about__frame::after {
+    inset: 3px;
+  }
+
+  .hero__title {
+    letter-spacing: 0.15em;
+  }
+
+  .hero__cloud {
+    margin-bottom: 1rem;
+  }
+}
