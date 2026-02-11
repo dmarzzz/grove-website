@@ -132,16 +132,30 @@
           alpha  = Math.min(0.95, alpha * 1.6 + Math.sin(time * 0.0018 + p.phase) * 0.1);
         }
 
+        /* Holographic shimmer — per-particle brightness modulation */
+        alpha *= 1.0 + Math.sin(time * 0.003 + p.phase * 10) * 0.06;
+
+        /* Fresnel rim glow — silhouette particles glow brighter */
+        var fresnel = 1.0 - Math.abs(rz2) * 1.8;
+        if (fresnel > 0) alpha += fresnel * fresnel * 0.25;
+
         pts[i] = { sx: sx, sy: sy, z: rz2, size: size, alpha: alpha, teal: p.teal };
       }
 
       /* Sort back-to-front (painter's algorithm) */
       pts.sort(function (a, b) { return a.z - b.z; });
 
+      /* — Responsive rendering — */
+      var compact     = w < 300;
+      var glowMul     = compact ? 2.2 : 3.2;
+      var lineMul     = compact ? 0.22 : 0.18;
+      var lineW       = compact ? 0.8 : 0.6;
+      var threshRatio = compact ? 0.20 : 0.16;
+
       /* — Draw connection lines (neural web) — */
-      var thresh  = w * 0.18;
+      var thresh  = w * threshRatio;
       var thresh2 = thresh * thresh;
-      ctx.lineWidth = 0.6;
+      ctx.lineWidth = lineW;
       ctx.globalAlpha = 1;
 
       for (var i = 0; i < pts.length; i++) {
@@ -152,7 +166,7 @@
 
           if (d2 < thresh2) {
             var d = Math.sqrt(d2);
-            var a = (1 - d / thresh) * 0.15 * Math.min(pts[i].alpha, pts[j].alpha);
+            var a = (1 - d / thresh) * lineMul * Math.min(pts[i].alpha, pts[j].alpha);
             if (a > 0.003) {
               ctx.beginPath();
               ctx.moveTo(pts[i].sx, pts[i].sy);
@@ -169,7 +183,7 @@
         var pt = pts[k];
         ctx.globalAlpha = pt.alpha;
         var sprite   = pt.teal ? spriteGold : spriteOlive;
-        var drawSize = pt.size * 4.5;
+        var drawSize = pt.size * glowMul;
         ctx.drawImage(sprite, pt.sx - drawSize * 0.5, pt.sy - drawSize * 0.5, drawSize, drawSize);
       }
 
@@ -182,128 +196,105 @@
 
 
   /* ─────────────────────────────────────────────────────────
-     Brain Particle Generation
-     Anatomically-structured: cerebral hemispheres with dome
-     shape, temporal lobes, cerebellum, brainstem, and visible
-     midline fissure. Coordinates: x = lateral, y = vertical
-     (up on screen), z = front-to-back (rotates with Y spin).
+     SDF Brain — Anatomically structured point cloud
+     Composite signed distance fields for accurate shape:
+     two cerebral hemispheres with visible longitudinal
+     fissure, temporal lobes, cerebellum, brainstem.
+     Surface-biased sampling with cortical fold noise.
      ───────────────────────────────────────────────────────── */
+
+  /* SDF primitive: distance to ellipsoid surface at origin */
+  function sdEllipsoid(px, py, pz, rx, ry, rz) {
+    var kx = px / rx, ky = py / ry, kz = pz / rz;
+    var k0 = Math.sqrt(kx * kx + ky * ky + kz * kz);
+    var kxx = px / (rx * rx), kyy = py / (ry * ry), kzz = pz / (rz * rz);
+    var k1 = Math.sqrt(kxx * kxx + kyy * kyy + kzz * kzz);
+    return k1 > 0.0001 ? k0 * (k0 - 1.0) / k1 : -1;
+  }
+
+  /* Smooth minimum — blends two SDFs organically */
+  function smin(a, b, k) {
+    var h = Math.max(k - Math.abs(a - b), 0.0) / k;
+    return Math.min(a, b) - h * h * k * 0.25;
+  }
+
+  /* Composite brain SDF
+     x = lateral, y = vertical (negative = dome/top), z = front-to-back */
+  function brainSDF(x, y, z) {
+    /* Cerebral hemispheres — two large ellipsoids, clear lateral gap */
+    var lh = sdEllipsoid(x + 0.28, y + 0.05, z, 0.26, 0.38, 0.44);
+    var rh = sdEllipsoid(x - 0.28, y + 0.05, z, 0.26, 0.38, 0.44);
+
+    /* Temporal lobes — lateral bulges, below and slightly forward */
+    var lt = sdEllipsoid(x + 0.28, y - 0.22, z + 0.06, 0.16, 0.12, 0.20);
+    var rt = sdEllipsoid(x - 0.28, y - 0.22, z + 0.06, 0.16, 0.12, 0.20);
+
+    /* Cerebellum — compact, below and behind */
+    var cb = sdEllipsoid(x, y - 0.20, z - 0.34, 0.20, 0.12, 0.14);
+
+    /* Brainstem — narrow descender */
+    var bs = sdEllipsoid(x, y - 0.34, z - 0.20, 0.055, 0.12, 0.055);
+
+    /* Compose: small blend between hemispheres preserves fissure */
+    var hemis = smin(lh, rh, 0.02);
+    hemis = smin(hemis, lt, 0.06);
+    hemis = smin(hemis, rt, 0.06);
+    var lower = smin(cb, bs, 0.05);
+    return smin(hemis, lower, 0.05);
+  }
+
+  /* Multi-frequency sine noise for cortical fold displacement */
+  function corticalNoise(x, y, z) {
+    return Math.sin(x * 7.3 + y * 2.1) * Math.cos(z * 5.7 + x * 1.3) * 0.5
+         + Math.sin(y * 11.1 + z * 3.7) * Math.cos(x * 8.3 + y * 4.1) * 0.25
+         + Math.sin(z * 15.3 + x * 5.3) * Math.cos(y * 12.7 + z * 2.9) * 0.125;
+  }
+
   function generateBrain(n) {
     var particles = [];
-    var mainPer  = Math.floor(n * 0.36);
-    var tempPer  = Math.floor(n * 0.07);
-    var cerebPer = Math.floor(n * 0.06);
+    var shell = 0.05;
+    var maxAttempts = n * 40;
+    var attempts = 0;
 
-    for (var i = 0; i < mainPer; i++) addCerebralHemi(particles, -1);
-    for (var i = 0; i < mainPer; i++) addCerebralHemi(particles,  1);
-    for (var i = 0; i < tempPer; i++) addTemporalLobe(particles, -1);
-    for (var i = 0; i < tempPer; i++) addTemporalLobe(particles,  1);
-    for (var i = 0; i < cerebPer; i++) addCerebellum(particles);
+    while (particles.length < n && attempts < maxAttempts) {
+      var x = (Math.random() - 0.5) * 1.4;
+      var y = (Math.random() - 0.5) * 1.1;
+      var z = (Math.random() - 0.5) * 1.2;
 
-    /* Remaining: corpus callosum + brainstem */
-    var remaining = n - (mainPer * 2 + tempPer * 2 + cerebPer);
-    for (var i = 0; i < remaining; i++) {
-      if (Math.random() < 0.55) {
-        /* Corpus callosum — flat band connecting hemispheres */
-        particles.push(makeParticle(
-          (Math.random() - 0.5) * 0.15,
-          (Math.random() - 0.5) * 0.10,
-          (Math.random() - 0.5) * 0.30
-        ));
-      } else {
-        /* Brainstem — descends from cerebellum */
-        particles.push(makeParticle(
-          (Math.random() - 0.5) * 0.07,
-          -0.30 - Math.random() * 0.20,
-          -0.18 + (Math.random() - 0.5) * 0.10
-        ));
+      var d = brainSDF(x, y, z);
+
+      if (Math.abs(d) < shell) {
+        /* Reject points in the longitudinal fissure */
+        if (Math.abs(x) < 0.05 && y > -0.15 && Math.abs(z) < 0.38) {
+          attempts++;
+          continue;
+        }
+
+        /* Cortical noise displacement — suggests folded surface */
+        var noise = corticalNoise(x, y, z);
+        var disp = noise * 0.02;
+        var len = Math.sqrt(x * x + y * y + z * z);
+        if (len > 0.01) {
+          x += (x / len) * disp;
+          y += (y / len) * disp;
+          z += (z / len) * disp;
+        }
+
+        particles.push(makeParticle(x, y, z));
       }
+      attempts++;
     }
 
     return particles;
   }
 
-  function addCerebralHemi(arr, side) {
-    var u = Math.random(), v = Math.random();
-    var theta = 2 * Math.PI * u;
-    var phi   = Math.acos(2 * v - 1);
-    var r     = 0.25 + Math.pow(Math.random(), 0.38) * 0.75;
-
-    var x = r * Math.sin(phi) * Math.cos(theta);
-    var y = r * Math.sin(phi) * Math.sin(theta);
-    var z = r * Math.cos(phi);
-
-    /* Scale into hemisphere shape + lateral gap */
-    x = x * 0.30 + side * 0.30;
-    y = y * 0.38;
-    z = z * 0.48;
-
-    /* Dome: top rounded, bottom flat */
-    if (y > 0) {
-      y *= 1.2;
-    } else {
-      y *= 0.65;
-    }
-
-    /* Frontal taper (z > 0 = front narrows) */
-    if (z > 0.1) {
-      var ft = (z - 0.1) / 0.38;
-      x *= 1 - ft * 0.28;
-      y *= 1 - ft * 0.12;
-    }
-
-    /* Occipital slight bulge (back widens) */
-    if (z < -0.18) {
-      var ob = Math.abs(z + 0.18) / 0.30;
-      x *= 1 + ob * 0.12;
-    }
-
-    arr.push(makeParticle(x, y, z));
-  }
-
-  function addTemporalLobe(arr, side) {
-    var u = Math.random(), v = Math.random();
-    var theta = 2 * Math.PI * u;
-    var phi   = Math.acos(2 * v - 1);
-    var r     = 0.30 + Math.pow(Math.random(), 0.5) * 0.70;
-
-    var x = r * Math.sin(phi) * Math.cos(theta);
-    var y = r * Math.sin(phi) * Math.sin(theta);
-    var z = r * Math.cos(phi);
-
-    /* Temporal lobe: lateral, below cerebrum, slightly forward */
-    x = x * 0.20 + side * 0.28;
-    y = y * 0.14 - 0.24;
-    z = z * 0.24 + 0.06;
-
-    arr.push(makeParticle(x, y, z));
-  }
-
-  function addCerebellum(arr) {
-    var u = Math.random(), v = Math.random();
-    var theta = 2 * Math.PI * u;
-    var phi   = Math.acos(2 * v - 1);
-    var r     = 0.30 + Math.pow(Math.random(), 0.5) * 0.70;
-
-    var x = r * Math.sin(phi) * Math.cos(theta);
-    var y = r * Math.sin(phi) * Math.sin(theta);
-    var z = r * Math.cos(phi);
-
-    /* Cerebellum: behind and below the cerebrum, centered */
-    x = x * 0.22;
-    y = y * 0.13 - 0.20;
-    z = z * 0.15 - 0.34;
-
-    arr.push(makeParticle(x, y, z));
-  }
-
   function makeParticle(x, y, z) {
     return {
       ox: x, oy: y, oz: z,
-      size:   1.1 + Math.random() * 2.0,
+      size:   0.8 + Math.random() * 1.6,
       phase:  Math.random() * Math.PI * 2,
       speed:  0.18 + Math.random() * 0.65,
-      bright: Math.random() < 0.12,
+      bright: Math.random() < 0.10,
       teal:   Math.random() < 0.15
     };
   }

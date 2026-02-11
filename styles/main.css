@@ -324,8 +324,24 @@ body::after {
   font-weight: 600;
   letter-spacing: var(--tracking-display);
   line-height: var(--leading-tight);
-  color: var(--color-text);
   margin-bottom: 1.25rem;
+
+  /* Gold-leaf shimmer — light catching embossed lettering */
+  background: linear-gradient(
+    120deg,
+    var(--color-text) 0%,
+    var(--color-text) 35%,
+    #8a7a4a 48%,
+    #b49545 50%,
+    #8a7a4a 52%,
+    var(--color-text) 65%,
+    var(--color-text) 100%
+  );
+  background-size: 400% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: title-shimmer 8s ease-in-out infinite;
 }
 
 .hero__descriptors {
@@ -572,6 +588,12 @@ body::after {
   transform: translateY(0);
 }
 
+/* Gold-leaf shimmer on title */
+@keyframes title-shimmer {
+  0%   { background-position: 300% center; }
+  100% { background-position: -100% center; }
+}
+
 /* Scroll dot drift */
 @keyframes scroll-dot {
   0%   { top: 0;    opacity: 0; }
@@ -686,11 +708,18 @@ body::after {
     border-width: 1px;
   }
 
+  .section--hero {
+    justify-content: start;
+    padding-top: clamp(2rem, 8vh, 5rem);
+  }
+
   .hero__title {
     letter-spacing: 0.15em;
   }
 
   .hero__cloud {
-    margin-bottom: 1rem;
+    width: 75vw;
+    height: 75vw;
+    margin-bottom: 0.75rem;
   }
 }
