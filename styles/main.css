@@ -326,22 +326,18 @@ body::after {
   line-height: var(--leading-tight);
   margin-bottom: 1.25rem;
 
-  /* Gold-leaf shimmer — light catching embossed lettering */
+  /* Constant gold text with pulsing holographic glow */
   background: linear-gradient(
-    120deg,
-    var(--color-text) 0%,
-    var(--color-text) 35%,
-    #8a7a4a 48%,
-    #b49545 50%,
-    #8a7a4a 52%,
-    var(--color-text) 65%,
-    var(--color-text) 100%
+    135deg,
+    var(--color-text) 20%,
+    #7a6b45 50%,
+    var(--color-text) 80%
   );
-  background-size: 400% 100%;
+  background-size: 100% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: title-shimmer 8s ease-in-out infinite;
+  animation: title-glow 10s ease-in-out infinite;
 }
 
 .hero__descriptors {
@@ -588,10 +584,46 @@ body::after {
   transform: translateY(0);
 }
 
-/* Gold-leaf shimmer on title */
-@keyframes title-shimmer {
-  0%   { background-position: 300% center; }
-  100% { background-position: -100% center; }
+/* Pulsing holographic glow */
+@keyframes title-glow {
+  0%, 100% {
+    text-shadow: 0 0 25px rgba(180,149,69,0.10);
+    filter: brightness(1);
+  }
+  35% {
+    text-shadow:
+      0 0 30px rgba(180,149,69,0.18),
+      0 0 60px rgba(180,149,69,0.06);
+    filter: brightness(1.02);
+  }
+  46% {
+    text-shadow:
+      0 0 20px rgba(140,100,220,0.18),
+      0 0 40px rgba(80,180,255,0.12),
+      0 0 60px rgba(180,149,69,0.08);
+    filter: brightness(1.08);
+  }
+  50% {
+    text-shadow:
+      0 0 18px rgba(80,220,180,0.20),
+      0 0 35px rgba(200,80,255,0.14),
+      0 0 55px rgba(80,180,255,0.10),
+      0 0 70px rgba(255,120,200,0.06);
+    filter: brightness(1.12);
+  }
+  54% {
+    text-shadow:
+      0 0 20px rgba(255,140,180,0.16),
+      0 0 40px rgba(120,80,220,0.12),
+      0 0 60px rgba(180,149,69,0.08);
+    filter: brightness(1.08);
+  }
+  65% {
+    text-shadow:
+      0 0 30px rgba(180,149,69,0.18),
+      0 0 60px rgba(180,149,69,0.06);
+    filter: brightness(1.02);
+  }
 }
 
 /* Scroll dot drift */
