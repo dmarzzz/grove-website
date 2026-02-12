@@ -10,7 +10,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./styles/main.css">
 
@@ -181,18 +181,23 @@
     .vellum-card {
       max-width: 560px;
       width: 85%;
-      padding: clamp(1.5rem, 3vh, 2.5rem) clamp(1.5rem, 3vw, 3rem);
+      padding: clamp(1.75rem, 3.5vh, 2.75rem) clamp(1.75rem, 3.5vw, 3.25rem);
       background: rgba(239, 229, 208, 0.9);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(168, 144, 60, 0.18);
-      box-shadow: 0 1px 3px rgba(80,60,20,0.06), 0 8px 32px rgba(80,60,20,0.08);
-      border-radius: 2px;
+      border: 1px solid rgba(168, 144, 60, 0.15);
+      /* Layered shadow: inner edge highlight, close contact, medium lift, far ambient */
+      box-shadow:
+        inset 0 1px 0 rgba(255,252,240,0.35),
+        0 1px 2px rgba(80,60,20,0.07),
+        0 4px 12px rgba(80,60,20,0.05),
+        0 12px 40px rgba(80,60,20,0.09);
+      border-radius: 3px;
     }
 
-    /* Card positions — inset from .page edges (NOT from viewport frame) */
-    .card--left   { margin-right: auto; margin-left: clamp(2rem, 5vw, 4rem); }
-    .card--right  { margin-left: auto; margin-right: clamp(2rem, 5vw, 4rem); }
+    /* Card positions — generous inset from .page edges for breathing room */
+    .card--left   { margin-right: auto; margin-left: clamp(2.5rem, 8vw, 8rem); }
+    .card--right  { margin-left: auto; margin-right: clamp(2.5rem, 8vw, 8rem); }
     .card--center { margin: 0 auto; }
 
     #organism .vellum-card { max-width: 640px; }
@@ -261,20 +266,28 @@
     }
 
     /* ═══ TYPOGRAPHY INSIDE CARDS ═══ */
+    .vellum-card {
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      font-feature-settings: 'kern' 1, 'liga' 1;
+    }
+
     .vellum-card p {
       max-width: 640px;
       margin-left: auto;
       margin-right: auto;
       font-size: clamp(0.84rem, 1.65vh, 1.08rem);
-      line-height: 1.62;
+      line-height: 1.65;
+      letter-spacing: 0.005em;
       margin-bottom: clamp(0.6em, 1.2vh, 1.1em);
     }
 
     .vellum-card p:last-of-type { margin-bottom: 0; }
 
     .vellum-card p strong {
-      font-weight: 600;
+      font-weight: 500;
       color: var(--color-text);
+      letter-spacing: 0.01em;
     }
 
     /* ═══ COMPOUND DIAGRAM ═══ */
@@ -374,9 +387,10 @@
       font-family: var(--font-display) !important;
       font-size: clamp(1.6rem, 3.5vh, 2.8rem) !important;
       font-weight: 300 !important;
-      letter-spacing: 0.08em !important;
+      letter-spacing: 0.1em !important;
       color: var(--color-text) !important;
       text-align: center;
+      text-rendering: optimizeLegibility;
       line-height: 1.1;
       margin-bottom: clamp(0.15rem, 0.3vh, 0.4rem);
     }
@@ -385,6 +399,8 @@
       font-family: var(--font-display) !important;
       font-size: clamp(0.95rem, 1.8vh, 1.35rem) !important;
       font-style: italic;
+      font-weight: 400;
+      letter-spacing: 0.03em;
       text-align: center;
       display: block;
       margin-top: 0;
@@ -415,15 +431,17 @@
       font-family: var(--font-display) !important;
       font-size: clamp(0.78rem, 1.35vh, 0.95rem) !important;
       font-style: italic !important;
+      font-weight: 400;
       color: var(--color-text-soft) !important;
       border-top: 1px solid var(--color-rule-light);
       border-bottom: none;
-      padding: clamp(0.4rem, 0.7vh, 0.75rem) 0;
+      padding: clamp(0.5rem, 0.8vh, 0.85rem) 0;
       margin: 0 auto;
       text-align: center;
       display: block !important;
       max-width: 640px;
-      line-height: 1.45;
+      line-height: 1.5;
+      letter-spacing: 0.01em;
     }
 
     .rq-grid .rq:last-child {
