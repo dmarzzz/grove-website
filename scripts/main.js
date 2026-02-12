@@ -6,6 +6,22 @@
 (function () {
   'use strict';
 
+  document.documentElement.classList.add('js');
+
+  var REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var TOUCH_ONLY = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  var CLOUD_CONFIG = {
+    desktop: { particles: 220, satellites: 12, lineRatio: 0.14, maxLinksPerNode: 8 },
+    tablet: { particles: 170, satellites: 9, lineRatio: 0.13, maxLinksPerNode: 6 },
+    mobile: { particles: 120, satellites: 6, lineRatio: 0.12, maxLinksPerNode: 4 }
+  };
+
+  function getCloudConfig(width) {
+    if (width <= 600) return CLOUD_CONFIG.mobile;
+    if (width <= 1024) return CLOUD_CONFIG.tablet;
+    return CLOUD_CONFIG.desktop;
+  }
+
   /* ═══════════════════════════════════════════════════════════
      FADE-IN ON SCROLL
      ═══════════════════════════════════════════════════════════ */
@@ -27,6 +43,131 @@
     els.forEach(function (el) { observer.observe(el); });
   }
 
+  function initKeyboardScrollFocus() {
+    var page = document.querySelector('.page');
+    if (!page) return;
+
+    if (!page.hasAttribute('tabindex')) {
+      page.setAttribute('tabindex', '-1');
+    }
+
+    var scrollKeys = {
+      ArrowDown: true,
+      ArrowUp: true,
+      PageDown: true,
+      PageUp: true,
+      Home: true,
+      End: true,
+      ' ': true
+    };
+
+    document.addEventListener('keydown', function (event) {
+      if (!scrollKeys[event.key]) return;
+      if (event.defaultPrevented) return;
+      if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+      var active = document.activeElement;
+      if (active && (
+        active.tagName === 'INPUT' ||
+        active.tagName === 'TEXTAREA' ||
+        active.tagName === 'SELECT' ||
+        active.isContentEditable
+      )) {
+        return;
+      }
+
+      if (active === document.body || active === document.documentElement) {
+        page.focus({ preventScroll: true });
+      }
+    }, { passive: true });
+
+    var skip = document.querySelector('.skip-link');
+    if (skip) {
+      skip.addEventListener('click', function () {
+        setTimeout(function () { page.focus({ preventScroll: true }); }, 0);
+      });
+    }
+  }
+
+  function initSectionNav() {
+    var page = document.querySelector('.page');
+    var links = document.querySelectorAll('[data-section-link]');
+    if (!page || !links.length) return;
+    links[0].classList.add('is-active');
+
+    var sections = [];
+    links.forEach(function (link) {
+      var id = link.getAttribute('data-section-link');
+      var section = document.getElementById(id);
+      if (section) sections.push(section);
+
+      link.addEventListener('click', function (event) {
+        if (!section) return;
+        event.preventDefault();
+        section.scrollIntoView({ behavior: REDUCED_MOTION ? 'auto' : 'smooth', block: 'start' });
+      });
+    });
+
+    if (!sections.length || !('IntersectionObserver' in window)) return;
+
+    var active = '';
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var id = entry.target.id;
+        if (!id || id === active) return;
+        active = id;
+        links.forEach(function (link) {
+          link.classList.toggle('is-active', link.getAttribute('data-section-link') === id);
+        });
+      });
+    }, {
+      root: page,
+      threshold: 0.22
+    });
+
+    sections.forEach(function (section) { observer.observe(section); });
+  }
+
+  function initMotionPauseController(onChange) {
+    var hero = document.getElementById('hero');
+    var heroVisible = true;
+    var paused = false;
+    var callback = typeof onChange === 'function' ? onChange : function () {};
+
+    function applyPause(next) {
+      if (paused === next) return;
+      paused = next;
+      document.body.classList.toggle('motion-paused', next);
+      callback(next);
+    }
+
+    function updatePause() {
+      if (REDUCED_MOTION) {
+        applyPause(true);
+        return;
+      }
+      applyPause(document.hidden || !heroVisible);
+    }
+
+    if (hero && 'IntersectionObserver' in window) {
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          heroVisible = entry.isIntersecting;
+          updatePause();
+        });
+      }, { threshold: 0.08 });
+      observer.observe(hero);
+    }
+
+    document.addEventListener('visibilitychange', updatePause);
+    updatePause();
+
+    return {
+      isPaused: function () { return paused; }
+    };
+  }
+
 
   /* ═══════════════════════════════════════════════════════════
      3D BRAIN POINT CLOUD
@@ -34,13 +175,16 @@
      two cerebral hemispheres. Soft-glow sprites, depth-sorted,
      with faint neural connection lines between nearby points.
      ═══════════════════════════════════════════════════════════ */
-  function initPointCloud() {
+  function initPointCloud(motionController) {
     var canvas = document.querySelector('.hero__cloud');
-    if (!canvas || !canvas.getContext) return;
+    if (!canvas || !canvas.getContext || REDUCED_MOTION) return;
 
     var ctx = canvas.getContext('2d');
-    var dpr = window.devicePixelRatio || 1;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
     var w, h;
+    var cloudConfig = getCloudConfig(window.innerWidth);
+    var particles = generateBrain(cloudConfig.particles);
+    var satellites = generateSatellites(cloudConfig.satellites);
 
     /* — Resize handler (retina-aware) — */
     function resize() {
@@ -50,6 +194,13 @@
       canvas.width = w * dpr;
       canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      var next = getCloudConfig(window.innerWidth);
+      if (next.particles !== cloudConfig.particles || next.satellites !== cloudConfig.satellites) {
+        cloudConfig = next;
+        particles = generateBrain(cloudConfig.particles);
+        satellites = generateSatellites(cloudConfig.satellites);
+      }
     }
     resize();
 
@@ -59,10 +210,24 @@
       resizeTimer = setTimeout(resize, 200);
     });
 
-    /* — Generate brain-shaped particle distribution — */
-    var PARTICLE_COUNT = 320;
-    var particles = generateBrain(PARTICLE_COUNT);
-    var satellites = generateSatellites();
+    /* — Cursor-responsive rotation — */
+    var mouseX = 0, mouseY = 0;
+    var mouseTargetX = 0, mouseTargetY = 0;
+
+    var heroSection = canvas.closest('.section--hero') || canvas.parentElement;
+    if (!TOUCH_ONLY) {
+      heroSection.addEventListener('mousemove', function (e) {
+        var rect = canvas.getBoundingClientRect();
+        var cxm = rect.left + rect.width / 2;
+        var cym = rect.top + rect.height / 2;
+        mouseTargetX = clamp01((e.clientX - cxm) / (rect.width * 0.6) + 0.5) * 2 - 1;
+        mouseTargetY = clamp01((e.clientY - cym) / (rect.height * 0.6) + 0.5) * 2 - 1;
+      });
+      heroSection.addEventListener('mouseleave', function () {
+        mouseTargetX = 0;
+        mouseTargetY = 0;
+      });
+    }
 
     /* — Pre-render soft-glow sprites (one per color, larger) — */
     var spriteOlive = createGlowSprite(64, [82, 96, 56]);
@@ -71,11 +236,19 @@
     /* — Render loop — */
     var frameId;
     function render(time) {
+      if (motionController && motionController.isPaused()) {
+        frameId = requestAnimationFrame(render);
+        return;
+      }
       ctx.clearRect(0, 0, w, h);
 
-      /* Rotation: slow Y spin + gentle X-axis tilt oscillation */
-      var rotY = time * 0.00007;
-      var rotX = Math.sin(time * 0.000035) * 0.2;
+      /* Smooth lerp toward mouse target */
+      mouseX += (mouseTargetX - mouseX) * 0.04;
+      mouseY += (mouseTargetY - mouseY) * 0.04;
+
+      /* Rotation: slow Y spin + gentle X-axis tilt + cursor influence */
+      var rotY = time * 0.00007 + mouseX * 0.35;
+      var rotX = Math.sin(time * 0.000035) * 0.2 + mouseY * 0.25;
       var cosY = Math.cos(rotY), sinY = Math.sin(rotY);
       var cosX = Math.cos(rotX), sinX = Math.sin(rotX);
 
@@ -204,7 +377,7 @@
       var glowMul     = compact ? 3.0 : 4.2;
       var lineMul     = compact ? 0.22 : 0.18;
       var lineW       = compact ? 0.8 : 0.6;
-      var threshRatio = compact ? 0.20 : 0.16;
+      var threshRatio = compact ? 0.20 : cloudConfig.lineRatio;
 
       /* — Draw connection lines (neural web) — */
       var thresh  = w * threshRatio;
@@ -213,7 +386,9 @@
       ctx.globalAlpha = 1;
 
       for (var i = 0; i < pts.length; i++) {
+        var linksForPoint = 0;
         for (var j = i + 1; j < pts.length; j++) {
+          if (linksForPoint >= cloudConfig.maxLinksPerNode) break;
           var ddx = pts[i].sx - pts[j].sx;
           var ddy = pts[i].sy - pts[j].sy;
           var d2  = ddx * ddx + ddy * ddy;
@@ -228,6 +403,7 @@
               ctx.lineTo(pts[j].sx, pts[j].sy);
               ctx.strokeStyle = 'rgba(90,88,48,' + a.toFixed(3) + ')';
               ctx.stroke();
+              linksForPoint++;
             }
           }
         }
@@ -388,52 +564,7 @@
     return pts;
   }
 
-  function generateTetraPoints(scale) {
-    var v = [
-      { x:  1, y:  1, z:  1 },
-      { x:  1, y: -1, z: -1 },
-      { x: -1, y:  1, z: -1 },
-      { x: -1, y: -1, z:  1 }
-    ];
-    var pts = [];
-    /* 4 vertices */
-    for (var i = 0; i < 4; i++)
-      pts.push(makeSatParticle(v[i].x * scale, v[i].y * scale, v[i].z * scale));
-    /* 6 edge midpoints */
-    for (var i = 0; i < 4; i++)
-      for (var j = i + 1; j < 4; j++)
-        pts.push(makeSatParticle(
-          (v[i].x + v[j].x) * 0.5 * scale,
-          (v[i].y + v[j].y) * 0.5 * scale,
-          (v[i].z + v[j].z) * 0.5 * scale
-        ));
-    return pts;
-  }
-
-  function generateOctaPoints(scale) {
-    var v = [
-      { x: 1, y: 0, z: 0 }, { x: -1, y: 0, z: 0 },
-      { x: 0, y: 1, z: 0 }, { x: 0, y: -1, z: 0 },
-      { x: 0, y: 0, z: 1 }, { x: 0, y: 0, z: -1 }
-    ];
-    var edges = [[0,2],[0,3],[0,4],[0,5],[1,2],[1,3],[1,4],[1,5],[2,4],[2,5],[3,4],[3,5]];
-    var pts = [];
-    /* 6 vertices */
-    for (var i = 0; i < 6; i++)
-      pts.push(makeSatParticle(v[i].x * scale, v[i].y * scale, v[i].z * scale));
-    /* 12 edge midpoints */
-    for (var e = 0; e < edges.length; e++) {
-      var a = v[edges[e][0]], b = v[edges[e][1]];
-      pts.push(makeSatParticle(
-        (a.x + b.x) * 0.5 * scale,
-        (a.y + b.y) * 0.5 * scale,
-        (a.z + b.z) * 0.5 * scale
-      ));
-    }
-    return pts;
-  }
-
-  function generateSatellites() {
+  function generateSatellites(maxCount) {
     var sats = [];
     var TAU = Math.PI * 2;
 
@@ -466,7 +597,8 @@
       [0.015, 0.47, -0.00027,  TAU * 0.78,  1.50,   0.00068]
     ];
 
-    for (var i = 0; i < configs.length; i++) {
+    var count = Math.max(1, Math.min(configs.length, maxCount || configs.length));
+    for (var i = 0; i < count; i++) {
       var c = configs[i];
       sats.push({
         particles: generateCubePoints(c[0]),
@@ -519,6 +651,7 @@
   function initMarginalia() {
     var frame = document.querySelector('.page-frame');
     if (!frame) return;
+    if (REDUCED_MOTION) return;
     if (window.innerWidth <= 900) return;
 
     /* Deterministic PRNG (mulberry32) */
@@ -839,31 +972,133 @@
         }
       }
     }, 6500);
+
+    /* ── Scroll-reactive growth — branches extend/retract via stroke-dashoffset ──
+       d0-d1: always fully drawn (anchored base) with ambient pulse
+       d2+:   grow proportionally as user scrolls down, retract on scroll up
+       nodes/filaments/grids: fade opacity based on scroll depth
+       Activates after the initial draw animation completes (~7s)             ── */
+    var page = document.querySelector('.page');
+    if (page && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+
+      /* Collect scroll-controlled elements after DOM is ready */
+      var scrollVines = [];   /* { el, pathLen, tier } — d2+ vine paths */
+      var scrollNodes = [];   /* nodes: opacity modulated */
+      var scrollGrids = [];   /* grid traces: opacity modulated */
+      var scrollFilaments = []; /* filaments: opacity modulated */
+
+      /* Tier thresholds: each tier blooms over a different scroll range
+         fraction = clamp01((scrollF - start) / (end - start))             */
+      var tierRanges = {
+        2: { start: 0.03, end: 0.40 },
+        3: { start: 0.12, end: 0.55 },
+        4: { start: 0.25, end: 0.70 },
+        5: { start: 0.35, end: 0.80 },
+        6: { start: 0.45, end: 0.90 }
+      };
+
+      var scrollTarget = 1;   /* start at 1 (fully grown) to match draw-in end state */
+      var scrollCurrent = 1;
+      var scrollRaf = null;
+      var scrollReady = false;
+
+      /* Wait for draw animation to finish (max observed: ~7.2s), then take
+         control of d2+ paths. Extra 300ms buffer for paint settlement. */
+      setTimeout(function () {
+        /* Gather d2+ vine paths */
+        for (var tier = 2; tier <= 6; tier++) {
+          var paths = svg.querySelectorAll('.marginalia__vine--d' + tier);
+          for (var i = 0; i < paths.length; i++) {
+            var el = paths[i];
+            var pLen = parseFloat(el.style.getPropertyValue('--path-len'));
+            if (!pLen || pLen <= 0) continue;
+
+            /* Take over from CSS animation — freeze at fully-drawn state */
+            el.style.animation = 'none';
+            el.style.strokeDasharray = pLen.toFixed(1);
+            el.style.strokeDashoffset = '0';
+
+            scrollVines.push({ el: el, pathLen: pLen, tier: tier });
+          }
+        }
+
+        /* Gather decoration elements for opacity modulation */
+        var nEls = svg.querySelectorAll('.marginalia__node');
+        for (var ni = 0; ni < nEls.length; ni++) scrollNodes.push(nEls[ni]);
+
+        var gEls = svg.querySelectorAll('.marginalia__grid');
+        for (var gi = 0; gi < gEls.length; gi++) scrollGrids.push(gEls[gi]);
+
+        var fEls = svg.querySelectorAll('.marginalia__filament');
+        for (var fi = 0; fi < fEls.length; fi++) scrollFilaments.push(fEls[fi]);
+
+        scrollReady = true;
+
+        /* Start from fully-drawn (1.0) matching CSS end state, then lerp
+           toward actual scroll position — avoids jarring jump if user
+           scrolled during the draw animation. */
+        var initF = page.scrollTop / Math.max(1, page.scrollHeight - page.clientHeight);
+        scrollTarget = initF;
+        scrollCurrent = 1;
+        if (Math.abs(1 - initF) > 0.01) {
+          scrollRaf = requestAnimationFrame(tickScrollGrowth);
+        }
+      }, 7500);
+
+      function applyScrollGrowth(f) {
+        /* ---- Vine stroke-dashoffset per tier ---- */
+        for (var vi = 0; vi < scrollVines.length; vi++) {
+          var v = scrollVines[vi];
+          var range = tierRanges[v.tier] || tierRanges[4];
+          var frac = clamp01((f - range.start) / Math.max(0.001, range.end - range.start));
+          v.el.style.strokeDashoffset = (v.pathLen * (1 - frac)).toFixed(1);
+        }
+
+        /* ---- Node visibility: bloom from scroll 5% to 50% ----
+           Use filter:opacity() so it stacks multiplicatively with
+           the CSS breathe animation (which controls element opacity) */
+        var nodeFrac = clamp01((f - 0.05) / 0.45);
+        var nodeFilter = 'opacity(' + (0.25 + nodeFrac * 0.75).toFixed(3) + ')';
+        for (var nj = 0; nj < scrollNodes.length; nj++) {
+          scrollNodes[nj].style.filter = nodeFilter;
+        }
+
+        /* ---- Grid opacity: bloom from scroll 10% to 60% ----
+           Grids have no CSS animation, so inline opacity works */
+        var gridFrac = clamp01((f - 0.10) / 0.50);
+        var gridOp = (0.08 + gridFrac * 0.22).toFixed(3);
+        for (var gj = 0; gj < scrollGrids.length; gj++) {
+          scrollGrids[gj].style.opacity = gridOp;
+        }
+
+        /* ---- Filament visibility: bloom from scroll 20% to 70% ----
+           Use filter:opacity() to stack with CSS drift animation */
+        var filFrac = clamp01((f - 0.20) / 0.50);
+        var filFilter = 'opacity(' + (0.15 + filFrac * 0.85).toFixed(3) + ')';
+        for (var fj = 0; fj < scrollFilaments.length; fj++) {
+          scrollFilaments[fj].style.filter = filFilter;
+        }
+      }
+
+      function tickScrollGrowth() {
+        scrollCurrent += (scrollTarget - scrollCurrent) * 0.06;
+        applyScrollGrowth(scrollCurrent);
+        if (Math.abs(scrollTarget - scrollCurrent) > 0.001) {
+          scrollRaf = requestAnimationFrame(tickScrollGrowth);
+        } else {
+          scrollCurrent = scrollTarget;
+          applyScrollGrowth(scrollCurrent);
+          scrollRaf = null;
+        }
+      }
+
+      page.addEventListener('scroll', function () {
+        if (!scrollReady) return;
+        scrollTarget = page.scrollTop / Math.max(1, page.scrollHeight - page.clientHeight);
+        if (!scrollRaf) scrollRaf = requestAnimationFrame(tickScrollGrowth);
+      }, { passive: true });
+    }
   }
-
-
-  /* ═══════════════════════════════════════════════════════════
-     MOBILE ACCORDION — Direction cards expand/collapse
-     ═══════════════════════════════════════════════════════════ */
-  function initAccordion() {
-    var mq = window.matchMedia('(max-width: 900px)');
-    if (!mq.matches) return;
-
-    var cards = document.querySelectorAll('.direction');
-    if (!cards.length) return;
-
-    /* First card expanded by default */
-    cards[0].classList.add('expanded');
-
-    cards.forEach(function (card) {
-      card.addEventListener('click', function () {
-        var isOpen = card.classList.contains('expanded');
-        cards.forEach(function (c) { c.classList.remove('expanded'); });
-        if (!isOpen) card.classList.add('expanded');
-      });
-    });
-  }
-
 
   /* ═══════════════════════════════════════════════════════════
      PAPER GLITCH — Subtle pixel-drift in the bottom-right.
@@ -871,7 +1106,7 @@
      ═══════════════════════════════════════════════════════════ */
   function initPaperGlitch() {
     var page = document.querySelector('.page');
-    if (!page) return;
+    if (!page || REDUCED_MOTION) return;
 
     /* Create a small glitch element */
     var el = document.createElement('div');
@@ -903,14 +1138,18 @@
       }, 80 + Math.random() * 60);
     }
 
-    /* Fire on load: two quick glitches */
-    setTimeout(glitch, 1200 + Math.random() * 800);
-    setTimeout(glitch, 2800 + Math.random() * 600);
+    /* Fire on load: one subtle glitch */
+    setTimeout(glitch, 1400 + Math.random() * 900);
 
-    /* Then rare: every 30-90 seconds */
-    setInterval(function () {
-      if (Math.random() < 0.4) glitch();
-    }, 30000 + Math.random() * 60000);
+    /* Then rare: randomized timer to avoid fixed wakeups */
+    function scheduleNext() {
+      var delay = 45000 + Math.random() * 80000;
+      setTimeout(function () {
+        if (!document.hidden && Math.random() < 0.3) glitch();
+        scheduleNext();
+      }, delay);
+    }
+    scheduleNext();
   }
 
 
@@ -918,10 +1157,12 @@
      INIT
      ═══════════════════════════════════════════════════════════ */
   function init() {
+    initKeyboardScrollFocus();
+    initSectionNav();
+    var motionController = initMotionPauseController();
     initFadeIn();
-    initPointCloud();
+    initPointCloud(motionController);
     initMarginalia();
-    initAccordion();
     initPaperGlitch();
   }
 
