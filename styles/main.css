@@ -681,6 +681,36 @@ body::after {
   color: var(--color-text-muted);
 }
 
+/* Library tool categories */
+.library {
+  margin: 0;
+}
+
+.library__label {
+  font-family: var(--font-mono);
+  font-size: var(--size-tiny);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-soft);
+  margin-top: 0.55em;
+}
+
+.library__label:first-child {
+  margin-top: 0;
+}
+
+.library__tools {
+  font-size: var(--size-small);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  margin-left: 0;
+}
+
+.library__tools .dot {
+  margin: 0 0.25em;
+  color: var(--color-rule-light);
+}
+
 
 
 /* ============================================================

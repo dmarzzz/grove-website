@@ -1,5 +1,5 @@
 ---
-title: Local AI Impact Assessment
+title: Sovereign AI Assessment
 numeral: III
 descriptor: Mapping the stack. Finding the leverage points.
 ---

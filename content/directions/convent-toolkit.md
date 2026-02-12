@@ -1,7 +1,7 @@
 ---
-title: Local AI Scientist
-numeral: I
-descriptor: A portable research kit — from conference to pop-up city to living room.
+title: Staff Picks
+numeral: II
+descriptor: The portable research kit — four tools, one workflow.
 ---
 
-A tool that travels. Record conversations, capture whiteboard sessions, and produce linked artifacts — all running locally on your own hardware. No remote servers, no cloud dependencies. You own the data, you control the inference. Take it to a conference, a pop-up city, or a living room and start generating knowledge immediately.
+Transcription records every conversation with speaker diarization and real-time captioning. Camera Utilities captures whiteboards and documents. Summarization distills sessions into linked artifacts — action items, key decisions, linked references. Search indexes everything locally and retrieves across sessions. Conference to pop-up city to living room. No remote servers. You own the data.
