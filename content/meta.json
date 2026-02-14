@@ -2,9 +2,5 @@
   "title": "The Grove",
   "descriptors": ["The School", "The Convent", "Greenpoint, Brooklyn"],
   "tagline": "Sovereign infrastructure for collaborative intelligence. Shared space. Local compute. Linked knowledge.",
-  "year": "2026",
-  "primary_cta_label": "Get in touch",
-  "primary_cta_href": "mailto:hello@grove-research.org",
-  "secondary_cta_label": "Explore outputs",
-  "secondary_cta_href": "#outputs"
+  "year": "2026"
 }
