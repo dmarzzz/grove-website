@@ -16,14 +16,14 @@
 
   <style>
     /* ============================================================
-       VARIATION G — ANCHORED PANORAMA, ELASTIC CONTENT FLOW
-       The panorama is intentionally limited to the upper narrative
-       zones, then fades into parchment. Content height is decoupled
-       from background image height so narrow/mobile widths do not
-       produce alignment or cutoff artifacts.
+       VARIATION H — FULL PANORAMA, SCROLL-LINKED (FRAMER-STYLE)
+       Keep the full longsitee image available across the entire
+       document and drive reveal via scroll-linked transform.
        ============================================================ */
 
     .page {
+      --panorama-shift: 0px;
+      --panorama-height: 2400px;
       scroll-snap-type: none;
       scroll-behavior: auto;
       overscroll-behavior: contain;
@@ -38,27 +38,25 @@
       top: 0;
       left: 0;
       right: 0;
-      height: clamp(1500px, 300vh, 3200px);
+      height: var(--panorama-height);
       z-index: 0;
       pointer-events: none;
+      transform: translate3d(0, var(--panorama-shift), 0);
+      will-change: transform, height;
       background:
         linear-gradient(
           to bottom,
-          rgba(239, 229, 208, 0) 0%,
-          rgba(239, 229, 208, 0) 56%,
-          rgba(239, 229, 208, 0.34) 76%,
-          rgba(239, 229, 208, 0.82) 90%,
-          var(--color-bg) 100%
+          rgba(239, 229, 208, 0.06) 0%,
+          rgba(239, 229, 208, 0.14) 52%,
+          rgba(239, 229, 208, 0.24) 100%
         ) top center / 100% 100% no-repeat,
         url('../assets/panorama/longsitee-720.png') top center / 100% auto no-repeat;
       background:
         linear-gradient(
           to bottom,
-          rgba(239, 229, 208, 0) 0%,
-          rgba(239, 229, 208, 0) 56%,
-          rgba(239, 229, 208, 0.34) 76%,
-          rgba(239, 229, 208, 0.82) 90%,
-          var(--color-bg) 100%
+          rgba(239, 229, 208, 0.06) 0%,
+          rgba(239, 229, 208, 0.14) 52%,
+          rgba(239, 229, 208, 0.24) 100%
         ) top center / 100% 100% no-repeat,
         -webkit-image-set(
           url('../assets/panorama/longsitee-720.avif') type('image/avif') 1x,
@@ -68,11 +66,9 @@
       background:
         linear-gradient(
           to bottom,
-          rgba(239, 229, 208, 0) 0%,
-          rgba(239, 229, 208, 0) 56%,
-          rgba(239, 229, 208, 0.34) 76%,
-          rgba(239, 229, 208, 0.82) 90%,
-          var(--color-bg) 100%
+          rgba(239, 229, 208, 0.06) 0%,
+          rgba(239, 229, 208, 0.14) 52%,
+          rgba(239, 229, 208, 0.24) 100%
         ) top center / 100% 100% no-repeat,
         image-set(
           url('../assets/panorama/longsitee-720.avif') type('image/avif') 1x,
@@ -83,25 +79,20 @@
 
     @media (min-width: 700px) {
       .page::before {
-        height: clamp(1800px, 280vh, 3400px);
         background:
           linear-gradient(
             to bottom,
-            rgba(239, 229, 208, 0) 0%,
-            rgba(239, 229, 208, 0) 56%,
-            rgba(239, 229, 208, 0.34) 76%,
-            rgba(239, 229, 208, 0.82) 90%,
-            var(--color-bg) 100%
+            rgba(239, 229, 208, 0.06) 0%,
+            rgba(239, 229, 208, 0.14) 52%,
+            rgba(239, 229, 208, 0.24) 100%
           ) top center / 100% 100% no-repeat,
           url('../assets/panorama/longsitee-1164.png') top center / 100% auto no-repeat;
         background:
           linear-gradient(
             to bottom,
-            rgba(239, 229, 208, 0) 0%,
-            rgba(239, 229, 208, 0) 56%,
-            rgba(239, 229, 208, 0.34) 76%,
-            rgba(239, 229, 208, 0.82) 90%,
-            var(--color-bg) 100%
+            rgba(239, 229, 208, 0.06) 0%,
+            rgba(239, 229, 208, 0.14) 52%,
+            rgba(239, 229, 208, 0.24) 100%
           ) top center / 100% 100% no-repeat,
           -webkit-image-set(
             url('../assets/panorama/longsitee-1164.avif') type('image/avif') 1x,
@@ -111,11 +102,9 @@
         background:
           linear-gradient(
             to bottom,
-            rgba(239, 229, 208, 0) 0%,
-            rgba(239, 229, 208, 0) 56%,
-            rgba(239, 229, 208, 0.34) 76%,
-            rgba(239, 229, 208, 0.82) 90%,
-            var(--color-bg) 100%
+            rgba(239, 229, 208, 0.06) 0%,
+            rgba(239, 229, 208, 0.14) 52%,
+            rgba(239, 229, 208, 0.24) 100%
           ) top center / 100% 100% no-repeat,
           image-set(
             url('../assets/panorama/longsitee-1164.avif') type('image/avif') 1x,
@@ -127,25 +116,20 @@
 
     @media (min-width: 1200px) {
       .page::before {
-        height: clamp(2100px, 260vh, 3600px);
         background:
           linear-gradient(
             to bottom,
-            rgba(239, 229, 208, 0) 0%,
-            rgba(239, 229, 208, 0) 56%,
-            rgba(239, 229, 208, 0.34) 76%,
-            rgba(239, 229, 208, 0.82) 90%,
-            var(--color-bg) 100%
+            rgba(239, 229, 208, 0.06) 0%,
+            rgba(239, 229, 208, 0.14) 52%,
+            rgba(239, 229, 208, 0.24) 100%
           ) top center / 100% 100% no-repeat,
           url('../assets/panorama/longsitee-1746.png') top center / 100% auto no-repeat;
         background:
           linear-gradient(
             to bottom,
-            rgba(239, 229, 208, 0) 0%,
-            rgba(239, 229, 208, 0) 56%,
-            rgba(239, 229, 208, 0.34) 76%,
-            rgba(239, 229, 208, 0.82) 90%,
-            var(--color-bg) 100%
+            rgba(239, 229, 208, 0.06) 0%,
+            rgba(239, 229, 208, 0.14) 52%,
+            rgba(239, 229, 208, 0.24) 100%
           ) top center / 100% 100% no-repeat,
           -webkit-image-set(
             url('../assets/panorama/longsitee-1746.avif') type('image/avif') 1x,
@@ -155,11 +139,9 @@
         background:
           linear-gradient(
             to bottom,
-            rgba(239, 229, 208, 0) 0%,
-            rgba(239, 229, 208, 0) 56%,
-            rgba(239, 229, 208, 0.34) 76%,
-            rgba(239, 229, 208, 0.82) 90%,
-            var(--color-bg) 100%
+            rgba(239, 229, 208, 0.06) 0%,
+            rgba(239, 229, 208, 0.14) 52%,
+            rgba(239, 229, 208, 0.24) 100%
           ) top center / 100% 100% no-repeat,
           image-set(
             url('../assets/panorama/longsitee-1746.avif') type('image/avif') 1x,
@@ -1022,6 +1004,79 @@
 
   </main>
 
+  <script>
+    (function () {
+      'use strict';
+
+      var page = document.getElementById('page');
+      if (!page) return;
+
+      var PANORAMA_ASPECT = 4212 / 1164;
+      var scrollRange = 1;
+      var viewportHeight = 1;
+      var imageHeight = 1;
+      var maxPan = 0;
+      var latestScroll = 0;
+      var frameId = 0;
+
+      function clamp01(value) {
+        return Math.max(0, Math.min(1, value));
+      }
+
+      function computeImageHeight() {
+        var scaledHeight = Math.round(page.clientWidth * PANORAMA_ASPECT);
+        return Math.max(scaledHeight, Math.round(viewportHeight * 1.05));
+      }
+
+      function applyPanoramaShift() {
+        var progress = scrollRange > 0 ? clamp01(latestScroll / scrollRange) : 0;
+        var mappedPan = progress * maxPan;
+
+        /* Scroll naturally moves pseudo content by -scrollTop.
+           Counter with +scrollTop, then apply mapped reveal offset. */
+        var shift = latestScroll - mappedPan;
+        page.style.setProperty('--panorama-shift', shift.toFixed(2) + 'px');
+      }
+
+      function updatePanoramaMetrics() {
+        viewportHeight = Math.max(page.clientHeight, 1);
+        imageHeight = computeImageHeight();
+        maxPan = Math.max(imageHeight - viewportHeight, 0);
+
+        page.style.setProperty('--panorama-height', imageHeight + 'px');
+
+        scrollRange = Math.max(page.scrollHeight - viewportHeight, 1);
+        latestScroll = page.scrollTop;
+        applyPanoramaShift();
+      }
+
+      function requestShiftUpdate() {
+        if (frameId) return;
+        frameId = window.requestAnimationFrame(function () {
+          frameId = 0;
+          latestScroll = page.scrollTop;
+          applyPanoramaShift();
+        });
+      }
+
+      page.addEventListener('scroll', requestShiftUpdate, { passive: true });
+      window.addEventListener('resize', updatePanoramaMetrics);
+
+      if ('ResizeObserver' in window) {
+        var observer = new ResizeObserver(updatePanoramaMetrics);
+        observer.observe(page);
+      }
+
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(updatePanoramaMetrics);
+      }
+
+      window.addEventListener('load', updatePanoramaMetrics, { once: true });
+      updatePanoramaMetrics();
+      window.setTimeout(updatePanoramaMetrics, 160);
+      window.setTimeout(updatePanoramaMetrics, 700);
+    })();
+  </script>
   <script src="../scripts/main.js"></script>
 </body>
 </html>

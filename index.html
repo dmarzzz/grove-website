@@ -10,162 +10,165 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./styles/main.css">
 
   <style>
     /* ============================================================
-       VARIATION F — PANORAMA WITH FLOATING VELLUM CARDS
-       The full panorama illustration (panorama-f.png, 1746×6318)
-       scrolls as .page background. Vellum cards float left/right/
-       center over it. Frame + marginalia stay fixed on top.
-       No parallax JS — the image scrolls naturally with content.
+       VARIATION H — FULL PANORAMA, SCROLL-LINKED (FRAMER-STYLE)
+       Keep the full longsitee image available across the entire
+       document and drive reveal via scroll-linked transform.
        ============================================================ */
 
-    /* ═══ PAGE — panorama replaces parchment ═══
-       background-attachment: local → scrolls with content inside .page
-       The panorama IS the visual; parchment shows below it as fallback */
     .page {
-      scroll-snap-type: y proximity;
+      --panorama-shift: 0px;
+      --panorama-height: 2400px;
+      scroll-snap-type: none;
       scroll-behavior: auto;
       overscroll-behavior: contain;
+      background: var(--color-bg);
+      position: fixed;
+      isolation: isolate;
+    }
+
+    .page::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--panorama-height);
+      z-index: 0;
+      pointer-events: none;
+      transform: translate3d(0, var(--panorama-shift), 0);
+      will-change: transform, height;
       background:
-        linear-gradient(to bottom,
-          transparent 0%,
-          transparent 72%,
-          rgba(239, 229, 208, 0.72) 88%,
-          var(--color-bg) 97%
-        ) top center / 100% 100% no-repeat local,
-        url('./assets/panorama/panorama-f-720.png') top center / 100% auto no-repeat local,
-        var(--color-bg);
+        linear-gradient(
+          to bottom,
+          rgba(239, 229, 208, 0.06) 0%,
+          rgba(239, 229, 208, 0.14) 52%,
+          rgba(239, 229, 208, 0.24) 100%
+        ) top center / 100% 100% no-repeat,
+        url('./assets/panorama/longsitee-720.png') top center / 100% auto no-repeat;
       background:
-        /* Gradient fade: softens panorama → parchment transition at bottom.
-           Starts at 75% of scroll height so the deep-underground zone
-           gradually dissolves into parchment. */
-        linear-gradient(to bottom,
-          transparent 0%,
-          transparent 72%,
-          rgba(239, 229, 208, 0.72) 88%,
-          var(--color-bg) 97%
-        ) top center / 100% 100% no-repeat local,
+        linear-gradient(
+          to bottom,
+          rgba(239, 229, 208, 0.06) 0%,
+          rgba(239, 229, 208, 0.14) 52%,
+          rgba(239, 229, 208, 0.24) 100%
+        ) top center / 100% 100% no-repeat,
         -webkit-image-set(
-          url('./assets/panorama/panorama-f-720.avif') type('image/avif') 1x,
-          url('./assets/panorama/panorama-f-720.webp') type('image/webp') 1x,
-          url('./assets/panorama/panorama-f-720.png') type('image/png') 1x
-        ) top center / 100% auto no-repeat local,
-        var(--color-bg);
+          url('./assets/panorama/longsitee-720.avif') type('image/avif') 1x,
+          url('./assets/panorama/longsitee-720.webp') type('image/webp') 1x,
+          url('./assets/panorama/longsitee-720.png') type('image/png') 1x
+        ) top center / 100% auto no-repeat;
       background:
-        linear-gradient(to bottom,
-          transparent 0%,
-          transparent 72%,
-          rgba(239, 229, 208, 0.72) 88%,
-          var(--color-bg) 97%
-        ) top center / 100% 100% no-repeat local,
+        linear-gradient(
+          to bottom,
+          rgba(239, 229, 208, 0.06) 0%,
+          rgba(239, 229, 208, 0.14) 52%,
+          rgba(239, 229, 208, 0.24) 100%
+        ) top center / 100% 100% no-repeat,
         image-set(
-          url('./assets/panorama/panorama-f-720.avif') type('image/avif') 1x,
-          url('./assets/panorama/panorama-f-720.webp') type('image/webp') 1x,
-          url('./assets/panorama/panorama-f-720.png') type('image/png') 1x
-        ) top center / 100% auto no-repeat local,
-        var(--color-bg);
+          url('./assets/panorama/longsitee-720.avif') type('image/avif') 1x,
+          url('./assets/panorama/longsitee-720.webp') type('image/webp') 1x,
+          url('./assets/panorama/longsitee-720.png') type('image/png') 1x
+        ) top center / 100% auto no-repeat;
     }
 
     @media (min-width: 700px) {
-      .page {
+      .page::before {
         background:
-          linear-gradient(to bottom,
-            transparent 0%,
-            transparent 72%,
-            rgba(239, 229, 208, 0.72) 88%,
-            var(--color-bg) 97%
-          ) top center / 100% 100% no-repeat local,
-          url('./assets/panorama/panorama-f-1280.png') top center / 100% auto no-repeat local,
-          var(--color-bg);
+          linear-gradient(
+            to bottom,
+            rgba(239, 229, 208, 0.06) 0%,
+            rgba(239, 229, 208, 0.14) 52%,
+            rgba(239, 229, 208, 0.24) 100%
+          ) top center / 100% 100% no-repeat,
+          url('./assets/panorama/longsitee-1164.png') top center / 100% auto no-repeat;
         background:
-          linear-gradient(to bottom,
-            transparent 0%,
-            transparent 72%,
-            rgba(239, 229, 208, 0.72) 88%,
-            var(--color-bg) 97%
-          ) top center / 100% 100% no-repeat local,
+          linear-gradient(
+            to bottom,
+            rgba(239, 229, 208, 0.06) 0%,
+            rgba(239, 229, 208, 0.14) 52%,
+            rgba(239, 229, 208, 0.24) 100%
+          ) top center / 100% 100% no-repeat,
           -webkit-image-set(
-            url('./assets/panorama/panorama-f-1280.avif') type('image/avif') 1x,
-            url('./assets/panorama/panorama-f-1280.webp') type('image/webp') 1x,
-            url('./assets/panorama/panorama-f-1280.png') type('image/png') 1x
-          ) top center / 100% auto no-repeat local,
-          var(--color-bg);
+            url('./assets/panorama/longsitee-1164.avif') type('image/avif') 1x,
+            url('./assets/panorama/longsitee-1164.webp') type('image/webp') 1x,
+            url('./assets/panorama/longsitee-1164.png') type('image/png') 1x
+          ) top center / 100% auto no-repeat;
         background:
-          linear-gradient(to bottom,
-            transparent 0%,
-            transparent 72%,
-            rgba(239, 229, 208, 0.72) 88%,
-            var(--color-bg) 97%
-          ) top center / 100% 100% no-repeat local,
+          linear-gradient(
+            to bottom,
+            rgba(239, 229, 208, 0.06) 0%,
+            rgba(239, 229, 208, 0.14) 52%,
+            rgba(239, 229, 208, 0.24) 100%
+          ) top center / 100% 100% no-repeat,
           image-set(
-            url('./assets/panorama/panorama-f-1280.avif') type('image/avif') 1x,
-            url('./assets/panorama/panorama-f-1280.webp') type('image/webp') 1x,
-            url('./assets/panorama/panorama-f-1280.png') type('image/png') 1x
-          ) top center / 100% auto no-repeat local,
-          var(--color-bg);
+            url('./assets/panorama/longsitee-1164.avif') type('image/avif') 1x,
+            url('./assets/panorama/longsitee-1164.webp') type('image/webp') 1x,
+            url('./assets/panorama/longsitee-1164.png') type('image/png') 1x
+          ) top center / 100% auto no-repeat;
       }
     }
 
     @media (min-width: 1200px) {
-      .page {
+      .page::before {
         background:
-          linear-gradient(to bottom,
-            transparent 0%,
-            transparent 74%,
-            rgba(239, 229, 208, 0.7) 88%,
-            var(--color-bg) 97%
-          ) top center / 100% 100% no-repeat local,
-          url('./assets/panorama/panorama-f-1746.png') top center / 100% auto no-repeat local,
-          var(--color-bg);
+          linear-gradient(
+            to bottom,
+            rgba(239, 229, 208, 0.06) 0%,
+            rgba(239, 229, 208, 0.14) 52%,
+            rgba(239, 229, 208, 0.24) 100%
+          ) top center / 100% 100% no-repeat,
+          url('./assets/panorama/longsitee-1746.png') top center / 100% auto no-repeat;
         background:
-          linear-gradient(to bottom,
-            transparent 0%,
-            transparent 74%,
-            rgba(239, 229, 208, 0.7) 88%,
-            var(--color-bg) 97%
-          ) top center / 100% 100% no-repeat local,
+          linear-gradient(
+            to bottom,
+            rgba(239, 229, 208, 0.06) 0%,
+            rgba(239, 229, 208, 0.14) 52%,
+            rgba(239, 229, 208, 0.24) 100%
+          ) top center / 100% 100% no-repeat,
           -webkit-image-set(
-            url('./assets/panorama/panorama-f-1746.avif') type('image/avif') 1x,
-            url('./assets/panorama/panorama-f-1746.webp') type('image/webp') 1x,
-            url('./assets/panorama/panorama-f-1746.png') type('image/png') 1x
-          ) top center / 100% auto no-repeat local,
-          var(--color-bg);
+            url('./assets/panorama/longsitee-1746.avif') type('image/avif') 1x,
+            url('./assets/panorama/longsitee-1746.webp') type('image/webp') 1x,
+            url('./assets/panorama/longsitee-1746.png') type('image/png') 1x
+          ) top center / 100% auto no-repeat;
         background:
-          linear-gradient(to bottom,
-            transparent 0%,
-            transparent 74%,
-            rgba(239, 229, 208, 0.7) 88%,
-            var(--color-bg) 97%
-          ) top center / 100% 100% no-repeat local,
+          linear-gradient(
+            to bottom,
+            rgba(239, 229, 208, 0.06) 0%,
+            rgba(239, 229, 208, 0.14) 52%,
+            rgba(239, 229, 208, 0.24) 100%
+          ) top center / 100% 100% no-repeat,
           image-set(
-            url('./assets/panorama/panorama-f-1746.avif') type('image/avif') 1x,
-            url('./assets/panorama/panorama-f-1746.webp') type('image/webp') 1x,
-            url('./assets/panorama/panorama-f-1746.png') type('image/png') 1x
-          ) top center / 100% auto no-repeat local,
-          var(--color-bg);
+            url('./assets/panorama/longsitee-1746.avif') type('image/avif') 1x,
+            url('./assets/panorama/longsitee-1746.webp') type('image/webp') 1x,
+            url('./assets/panorama/longsitee-1746.png') type('image/png') 1x
+          ) top center / 100% auto no-repeat;
       }
     }
 
     /* Remove grain overlay — let the illustration breathe */
     .page::after { display: none; }
+    .page > * {
+      position: relative;
+      z-index: 1;
+    }
 
-    /* ═══ SECTIONS — each fills .page visible area ═══
-       min-height: 100% = height of .page (which is position:fixed with top/bottom).
-       Sections that need more space can grow; snap still works with proximity. */
+    /* Sections now size to content; only hero keeps viewport anchoring. */
     .section--hero {
       min-height: 100%;
       height: auto;
-      scroll-snap-align: start;
-      scroll-snap-stop: always;
+      scroll-snap-align: none;
+      scroll-snap-stop: normal;
     }
 
     .reading {
-      min-height: 100%;
-      scroll-snap-align: start;
+      min-height: auto;
+      scroll-snap-align: none;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -181,23 +184,18 @@
     .vellum-card {
       max-width: 560px;
       width: 85%;
-      padding: clamp(1.75rem, 3.5vh, 2.75rem) clamp(1.75rem, 3.5vw, 3.25rem);
+      padding: clamp(1.5rem, 3vh, 2.5rem) clamp(1.5rem, 3vw, 3rem);
       background: rgba(239, 229, 208, 0.9);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(168, 144, 60, 0.15);
-      /* Layered shadow: inner edge highlight, close contact, medium lift, far ambient */
-      box-shadow:
-        inset 0 1px 0 rgba(255,252,240,0.35),
-        0 1px 2px rgba(80,60,20,0.07),
-        0 4px 12px rgba(80,60,20,0.05),
-        0 12px 40px rgba(80,60,20,0.09);
-      border-radius: 3px;
+      border: 1px solid rgba(168, 144, 60, 0.18);
+      box-shadow: 0 1px 3px rgba(80,60,20,0.06), 0 8px 32px rgba(80,60,20,0.08);
+      border-radius: 2px;
     }
 
-    /* Card positions — generous inset from .page edges for breathing room */
-    .card--left   { margin-right: auto; margin-left: clamp(2.5rem, 8vw, 8rem); }
-    .card--right  { margin-left: auto; margin-right: clamp(2.5rem, 8vw, 8rem); }
+    /* Card positions — inset from .page edges (NOT from viewport frame) */
+    .card--left   { margin-right: auto; margin-left: clamp(2rem, 5vw, 4rem); }
+    .card--right  { margin-left: auto; margin-right: clamp(2rem, 5vw, 4rem); }
     .card--center { margin: 0 auto; }
 
     #organism .vellum-card { max-width: 640px; }
@@ -266,28 +264,20 @@
     }
 
     /* ═══ TYPOGRAPHY INSIDE CARDS ═══ */
-    .vellum-card {
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
-      font-feature-settings: 'kern' 1, 'liga' 1;
-    }
-
     .vellum-card p {
       max-width: 640px;
       margin-left: auto;
       margin-right: auto;
       font-size: clamp(0.84rem, 1.65vh, 1.08rem);
-      line-height: 1.65;
-      letter-spacing: 0.005em;
+      line-height: 1.62;
       margin-bottom: clamp(0.6em, 1.2vh, 1.1em);
     }
 
     .vellum-card p:last-of-type { margin-bottom: 0; }
 
     .vellum-card p strong {
-      font-weight: 500;
+      font-weight: 600;
       color: var(--color-text);
-      letter-spacing: 0.01em;
     }
 
     /* ═══ COMPOUND DIAGRAM ═══ */
@@ -387,10 +377,9 @@
       font-family: var(--font-display) !important;
       font-size: clamp(1.6rem, 3.5vh, 2.8rem) !important;
       font-weight: 300 !important;
-      letter-spacing: 0.1em !important;
+      letter-spacing: 0.08em !important;
       color: var(--color-text) !important;
       text-align: center;
-      text-rendering: optimizeLegibility;
       line-height: 1.1;
       margin-bottom: clamp(0.15rem, 0.3vh, 0.4rem);
     }
@@ -399,8 +388,6 @@
       font-family: var(--font-display) !important;
       font-size: clamp(0.95rem, 1.8vh, 1.35rem) !important;
       font-style: italic;
-      font-weight: 400;
-      letter-spacing: 0.03em;
       text-align: center;
       display: block;
       margin-top: 0;
@@ -431,17 +418,15 @@
       font-family: var(--font-display) !important;
       font-size: clamp(0.78rem, 1.35vh, 0.95rem) !important;
       font-style: italic !important;
-      font-weight: 400;
       color: var(--color-text-soft) !important;
       border-top: 1px solid var(--color-rule-light);
       border-bottom: none;
-      padding: clamp(0.5rem, 0.8vh, 0.85rem) 0;
+      padding: clamp(0.4rem, 0.7vh, 0.75rem) 0;
       margin: 0 auto;
       text-align: center;
       display: block !important;
       max-width: 640px;
-      line-height: 1.5;
-      letter-spacing: 0.01em;
+      line-height: 1.45;
     }
 
     .rq-grid .rq:last-child {
@@ -1019,6 +1004,79 @@
 
   </main>
 
+  <script>
+    (function () {
+      'use strict';
+
+      var page = document.getElementById('page');
+      if (!page) return;
+
+      var PANORAMA_ASPECT = 4212 / 1164;
+      var scrollRange = 1;
+      var viewportHeight = 1;
+      var imageHeight = 1;
+      var maxPan = 0;
+      var latestScroll = 0;
+      var frameId = 0;
+
+      function clamp01(value) {
+        return Math.max(0, Math.min(1, value));
+      }
+
+      function computeImageHeight() {
+        var scaledHeight = Math.round(page.clientWidth * PANORAMA_ASPECT);
+        return Math.max(scaledHeight, Math.round(viewportHeight * 1.05));
+      }
+
+      function applyPanoramaShift() {
+        var progress = scrollRange > 0 ? clamp01(latestScroll / scrollRange) : 0;
+        var mappedPan = progress * maxPan;
+
+        /* Scroll naturally moves pseudo content by -scrollTop.
+           Counter with +scrollTop, then apply mapped reveal offset. */
+        var shift = latestScroll - mappedPan;
+        page.style.setProperty('--panorama-shift', shift.toFixed(2) + 'px');
+      }
+
+      function updatePanoramaMetrics() {
+        viewportHeight = Math.max(page.clientHeight, 1);
+        imageHeight = computeImageHeight();
+        maxPan = Math.max(imageHeight - viewportHeight, 0);
+
+        page.style.setProperty('--panorama-height', imageHeight + 'px');
+
+        scrollRange = Math.max(page.scrollHeight - viewportHeight, 1);
+        latestScroll = page.scrollTop;
+        applyPanoramaShift();
+      }
+
+      function requestShiftUpdate() {
+        if (frameId) return;
+        frameId = window.requestAnimationFrame(function () {
+          frameId = 0;
+          latestScroll = page.scrollTop;
+          applyPanoramaShift();
+        });
+      }
+
+      page.addEventListener('scroll', requestShiftUpdate, { passive: true });
+      window.addEventListener('resize', updatePanoramaMetrics);
+
+      if ('ResizeObserver' in window) {
+        var observer = new ResizeObserver(updatePanoramaMetrics);
+        observer.observe(page);
+      }
+
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(updatePanoramaMetrics);
+      }
+
+      window.addEventListener('load', updatePanoramaMetrics, { once: true });
+      updatePanoramaMetrics();
+      window.setTimeout(updatePanoramaMetrics, 160);
+      window.setTimeout(updatePanoramaMetrics, 700);
+    })();
+  </script>
   <script src="./scripts/main.js"></script>
 </body>
 </html>
