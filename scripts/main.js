@@ -1040,7 +1040,7 @@
     bx.fillRect(0, 0, spriteSize, spriteSize);
 
     /* Connection threshold */
-    var CONNECT_DIST = 0.22;
+    var CONNECT_DIST = 0.38;
 
     function render(time) {
       var w = canvas.width / dpr;
@@ -1066,15 +1066,15 @@
       }
 
       /* Draw connections */
-      ctx.strokeStyle = 'rgba(140,118,62,0.25)';
-      ctx.lineWidth = 0.7;
+      ctx.strokeStyle = 'rgba(120,105,55,0.35)';
+      ctx.lineWidth = 1.0;
       for (var i = 0; i < nodes.length; i++) {
         for (var j = i + 1; j < nodes.length; j++) {
           var dx = nodes[i].x - nodes[j].x;
           var dy = (nodes[i].y - nodes[j].y) * (w / h);
           var d = Math.sqrt(dx * dx + dy * dy);
           if (d < CONNECT_DIST) {
-            var alpha = (1 - d / CONNECT_DIST) * 0.3;
+            var alpha = (1 - d / CONNECT_DIST) * 0.45;
             ctx.globalAlpha = alpha;
             ctx.beginPath();
             ctx.moveTo(nodes[i].x * w, nodes[i].y * h);
