@@ -909,6 +909,7 @@ body::after {
 
   .hero__title {
     letter-spacing: 0.15em;
+    margin-bottom: 0.6rem;
   }
 
   .hero__cloud {
@@ -917,18 +918,23 @@ body::after {
     margin-bottom: 0.5rem;
   }
 
-  .hero__tagline {
-    font-size: clamp(0.85rem, 3.5vw, 1.05rem);
-    max-width: 85vw;
-    padding: 0 0.5rem;
-    line-height: 1.5;
+  .hero__descriptors {
+    font-size: clamp(0.6rem, 2.8vw, 0.75rem);
+    margin-bottom: 0.75rem;
   }
 
-  .hero__descriptors {
-    margin-bottom: 1rem;
+  .hero__descriptors .dot {
+    margin: 0 0.4em;
   }
 
   .hero__rule {
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero__tagline {
+    font-size: clamp(0.82rem, 3.2vw, 1rem);
+    max-width: 85vw;
+    padding: 0 0.5rem;
+    line-height: 1.5;
   }
 }
