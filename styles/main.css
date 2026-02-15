@@ -533,11 +533,89 @@ body::after {
 /* ============================================================
    ABOUT
    ============================================================ */
+
+/* Subtle radial glow behind about content */
+.section--about::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(255, 253, 248, 0.45) 0%, transparent 55%);
+  pointer-events: none;
+}
+
 .about__content {
   max-width: var(--content-narrow);
   width: 100%;
   position: relative;
+  z-index: 1;
   padding-block: 2rem;
+}
+
+/* Heading with flanking ornamental rules — mirrors directions heading */
+.about__heading {
+  display: flex;
+  align-items: center;
+  gap: 1.5em;
+  margin-bottom: clamp(1.5rem, 3.5vh, 2.5rem);
+}
+
+.about__heading span {
+  font-family: var(--font-display);
+  font-size: var(--size-h2);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.about__heading::before,
+.about__heading::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to var(--dir, right), var(--color-rule-light), transparent);
+}
+
+.about__heading::after {
+  --dir: left;
+}
+
+/* Illuminated drop cap */
+.about__dropcap {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 3.8em;
+  font-weight: 600;
+  line-height: 0.78;
+  margin-right: 0.08em;
+  margin-top: 0.05em;
+  color: var(--color-accent-dark);
+  opacity: 0.85;
+}
+
+.about__lede {
+  color: var(--color-text-body);
+  margin-bottom: 1.25em;
+}
+
+/* Ornamental rule with diamond — same motif as hero */
+.about__rule {
+  width: 80px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--color-rule) 25%, var(--color-rule) 75%, transparent);
+  margin: 0 auto 1.5em;
+  position: relative;
+}
+
+.about__rule::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  background: var(--color-rule);
+  transform: translate(-50%, -50%) rotate(45deg);
 }
 
 .about__content p {
@@ -562,7 +640,7 @@ body::after {
   display: block;
   text-align: center;
   margin-top: 2.5rem;
-  font-size: 0.55rem;
+  font-size: 0.65rem;
   letter-spacing: 0.3em;
   color: var(--color-rule);
   user-select: none;
