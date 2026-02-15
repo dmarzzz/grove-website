@@ -998,18 +998,18 @@
     });
 
     /* Generate nodes */
-    var NODE_COUNT = 45;
+    var NODE_COUNT = 55;
     var nodes = [];
     for (var i = 0; i < NODE_COUNT; i++) {
       nodes.push({
         x: Math.random(),
         y: Math.random(),
-        vx: (Math.random() - 0.5) * 0.00012,
-        vy: (Math.random() - 0.5) * 0.00012,
-        size: 1.0 + Math.random() * 1.8,
+        vx: (Math.random() - 0.5) * 0.00015,
+        vy: (Math.random() - 0.5) * 0.00015,
+        size: 1.5 + Math.random() * 2.5,
         phase: Math.random() * Math.PI * 2,
         speed: 0.3 + Math.random() * 0.5,
-        bright: Math.random() < 0.15
+        bright: Math.random() < 0.2
       });
     }
 
@@ -1020,8 +1020,9 @@
     var sx = sprite.getContext('2d');
     var sg = sx.createRadialGradient(spriteSize / 2, spriteSize / 2, 0, spriteSize / 2, spriteSize / 2, spriteSize / 2);
     sg.addColorStop(0, 'rgba(140,118,62,1)');
-    sg.addColorStop(0.15, 'rgba(140,118,62,0.6)');
-    sg.addColorStop(0.4, 'rgba(140,118,62,0.15)');
+    sg.addColorStop(0.12, 'rgba(140,118,62,0.7)');
+    sg.addColorStop(0.3, 'rgba(140,118,62,0.25)');
+    sg.addColorStop(0.55, 'rgba(140,118,62,0.06)');
     sg.addColorStop(1, 'rgba(140,118,62,0)');
     sx.fillStyle = sg;
     sx.fillRect(0, 0, spriteSize, spriteSize);
@@ -1031,14 +1032,15 @@
     var bx = bright.getContext('2d');
     var bg = bx.createRadialGradient(spriteSize / 2, spriteSize / 2, 0, spriteSize / 2, spriteSize / 2, spriteSize / 2);
     bg.addColorStop(0, 'rgba(180,149,69,1)');
-    bg.addColorStop(0.15, 'rgba(180,149,69,0.65)');
-    bg.addColorStop(0.4, 'rgba(180,149,69,0.2)');
+    bg.addColorStop(0.12, 'rgba(180,149,69,0.75)');
+    bg.addColorStop(0.3, 'rgba(180,149,69,0.3)');
+    bg.addColorStop(0.55, 'rgba(180,149,69,0.08)');
     bg.addColorStop(1, 'rgba(180,149,69,0)');
     bx.fillStyle = bg;
     bx.fillRect(0, 0, spriteSize, spriteSize);
 
     /* Connection threshold */
-    var CONNECT_DIST = 0.18;
+    var CONNECT_DIST = 0.22;
 
     function render(time) {
       var w = canvas.width / dpr;
@@ -1064,15 +1066,15 @@
       }
 
       /* Draw connections */
-      ctx.strokeStyle = 'rgba(140,118,62,0.12)';
-      ctx.lineWidth = 0.5;
+      ctx.strokeStyle = 'rgba(140,118,62,0.25)';
+      ctx.lineWidth = 0.7;
       for (var i = 0; i < nodes.length; i++) {
         for (var j = i + 1; j < nodes.length; j++) {
           var dx = nodes[i].x - nodes[j].x;
           var dy = (nodes[i].y - nodes[j].y) * (w / h);
           var d = Math.sqrt(dx * dx + dy * dy);
           if (d < CONNECT_DIST) {
-            var alpha = (1 - d / CONNECT_DIST) * 0.14;
+            var alpha = (1 - d / CONNECT_DIST) * 0.3;
             ctx.globalAlpha = alpha;
             ctx.beginPath();
             ctx.moveTo(nodes[i].x * w, nodes[i].y * h);
@@ -1087,7 +1089,7 @@
       for (var i = 0; i < nodes.length; i++) {
         var n = nodes[i];
         var shimmer = 1 + Math.sin(time * 0.002 + n.phase * 5) * 0.15;
-        var sz = n.size * 3.5 * shimmer;
+        var sz = n.size * 4.5 * shimmer;
         var img = n.bright ? bright : sprite;
         ctx.drawImage(img, n.x * w - sz / 2, n.y * h - sz / 2, sz, sz);
       }
