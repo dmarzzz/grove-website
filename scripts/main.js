@@ -839,6 +839,113 @@
         }
       }
     }, 6500);
+
+    /* ── Scroll-reactive growth — branches extend/retract via stroke-dashoffset ──
+       d0-d1: always fully drawn (anchored base) with ambient pulse
+       d2+:   grow proportionally as user scrolls down, retract on scroll up
+       nodes/filaments/grids: fade opacity based on scroll depth
+       Activates after the initial draw animation completes (~7s)             ── */
+    var page = document.querySelector('.page');
+    if (page && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+
+      var scrollVines = [];
+      var scrollNodes = [];
+      var scrollGrids = [];
+      var scrollFilaments = [];
+
+      var tierRanges = {
+        2: { start: 0.03, end: 0.40 },
+        3: { start: 0.12, end: 0.55 },
+        4: { start: 0.25, end: 0.70 },
+        5: { start: 0.35, end: 0.80 },
+        6: { start: 0.45, end: 0.90 }
+      };
+
+      var scrollTarget = 1;
+      var scrollCurrent = 1;
+      var scrollRaf = null;
+      var scrollReady = false;
+
+      setTimeout(function () {
+        for (var tier = 2; tier <= 6; tier++) {
+          var paths = svg.querySelectorAll('.marginalia__vine--d' + tier);
+          for (var i = 0; i < paths.length; i++) {
+            var el = paths[i];
+            var pLen = parseFloat(el.style.getPropertyValue('--path-len'));
+            if (!pLen || pLen <= 0) continue;
+
+            el.style.animation = 'none';
+            el.style.strokeDasharray = pLen.toFixed(1);
+            el.style.strokeDashoffset = '0';
+
+            scrollVines.push({ el: el, pathLen: pLen, tier: tier });
+          }
+        }
+
+        var nEls = svg.querySelectorAll('.marginalia__node');
+        for (var ni = 0; ni < nEls.length; ni++) scrollNodes.push(nEls[ni]);
+
+        var gEls = svg.querySelectorAll('.marginalia__grid');
+        for (var gi = 0; gi < gEls.length; gi++) scrollGrids.push(gEls[gi]);
+
+        var fEls = svg.querySelectorAll('.marginalia__filament');
+        for (var fi = 0; fi < fEls.length; fi++) scrollFilaments.push(fEls[fi]);
+
+        scrollReady = true;
+
+        var initF = page.scrollTop / Math.max(1, page.scrollHeight - page.clientHeight);
+        scrollTarget = initF;
+        scrollCurrent = 1;
+        if (Math.abs(1 - initF) > 0.01) {
+          scrollRaf = requestAnimationFrame(tickScrollGrowth);
+        }
+      }, 7500);
+
+      function applyScrollGrowth(f) {
+        for (var vi = 0; vi < scrollVines.length; vi++) {
+          var v = scrollVines[vi];
+          var range = tierRanges[v.tier] || tierRanges[4];
+          var frac = clamp01((f - range.start) / Math.max(0.001, range.end - range.start));
+          v.el.style.strokeDashoffset = (v.pathLen * (1 - frac)).toFixed(1);
+        }
+
+        var nodeFrac = clamp01((f - 0.05) / 0.45);
+        var nodeFilter = 'opacity(' + (0.25 + nodeFrac * 0.75).toFixed(3) + ')';
+        for (var nj = 0; nj < scrollNodes.length; nj++) {
+          scrollNodes[nj].style.filter = nodeFilter;
+        }
+
+        var gridFrac = clamp01((f - 0.10) / 0.50);
+        var gridOp = (0.08 + gridFrac * 0.22).toFixed(3);
+        for (var gj = 0; gj < scrollGrids.length; gj++) {
+          scrollGrids[gj].style.opacity = gridOp;
+        }
+
+        var filFrac = clamp01((f - 0.20) / 0.50);
+        var filFilter = 'opacity(' + (0.15 + filFrac * 0.85).toFixed(3) + ')';
+        for (var fj = 0; fj < scrollFilaments.length; fj++) {
+          scrollFilaments[fj].style.filter = filFilter;
+        }
+      }
+
+      function tickScrollGrowth() {
+        scrollCurrent += (scrollTarget - scrollCurrent) * 0.06;
+        applyScrollGrowth(scrollCurrent);
+        if (Math.abs(scrollTarget - scrollCurrent) > 0.001) {
+          scrollRaf = requestAnimationFrame(tickScrollGrowth);
+        } else {
+          scrollCurrent = scrollTarget;
+          applyScrollGrowth(scrollCurrent);
+          scrollRaf = null;
+        }
+      }
+
+      page.addEventListener('scroll', function () {
+        if (!scrollReady) return;
+        scrollTarget = page.scrollTop / Math.max(1, page.scrollHeight - page.clientHeight);
+        if (!scrollRaf) scrollRaf = requestAnimationFrame(tickScrollGrowth);
+      }, { passive: true });
+    }
   }
 
 

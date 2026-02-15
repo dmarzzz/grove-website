@@ -16,8 +16,8 @@
   --color-text:         #1c1912;
   --color-text-body:    #302d24;
   --color-text-soft:    #5a5648;
-  --color-text-muted:   #8e8672;
-  --color-text-ghost:   #b5ad98;
+  --color-text-muted:   #6d6552;
+  --color-text-ghost:   #8f856f;
 
   /* Accent — gold-olive (erdtree-touched) */
   --color-accent:       #5a6038;
@@ -47,10 +47,10 @@
   --size-small:   clamp(0.8125rem, 0.92vw, 0.875rem);
   --size-tiny:    clamp(0.6875rem, 0.78vw, 0.75rem);
 
-  --leading-body:  1.78;
+  --leading-body:  1.62;
   --leading-tight: 1.2;
 
-  --tracking-display: 0.12em;
+  --tracking-display: 0.08em;
   --tracking-caps:    0.14em;
 }
 
