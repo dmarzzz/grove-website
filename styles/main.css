@@ -635,6 +635,16 @@ body::after {
   letter-spacing: 0.01em;
 }
 
+/* Constellation knowledge graph */
+.about__constellation {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  height: 180px;
+  margin: 0 auto;
+  opacity: 0.55;
+}
+
 /* Ornamental mark centered below prose */
 .about__mark {
   display: block;

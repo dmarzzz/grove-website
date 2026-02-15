@@ -973,6 +973,133 @@
 
 
   /* ═══════════════════════════════════════════════════════════
+     CONSTELLATION — Flat knowledge graph on the about page.
+     Gold dots drifting with faint connecting lines.
+     ═══════════════════════════════════════════════════════════ */
+  function initConstellation() {
+    var canvas = document.querySelector('.about__constellation');
+    if (!canvas) return;
+
+    var ctx = canvas.getContext('2d');
+    var dpr = window.devicePixelRatio || 1;
+
+    function resize() {
+      var rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 200);
+    });
+
+    /* Generate nodes */
+    var NODE_COUNT = 45;
+    var nodes = [];
+    for (var i = 0; i < NODE_COUNT; i++) {
+      nodes.push({
+        x: Math.random(),
+        y: Math.random(),
+        vx: (Math.random() - 0.5) * 0.00012,
+        vy: (Math.random() - 0.5) * 0.00012,
+        size: 1.0 + Math.random() * 1.8,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.3 + Math.random() * 0.5,
+        bright: Math.random() < 0.15
+      });
+    }
+
+    /* Pre-render glow sprite */
+    var spriteSize = 32;
+    var sprite = document.createElement('canvas');
+    sprite.width = spriteSize; sprite.height = spriteSize;
+    var sx = sprite.getContext('2d');
+    var sg = sx.createRadialGradient(spriteSize / 2, spriteSize / 2, 0, spriteSize / 2, spriteSize / 2, spriteSize / 2);
+    sg.addColorStop(0, 'rgba(140,118,62,1)');
+    sg.addColorStop(0.15, 'rgba(140,118,62,0.6)');
+    sg.addColorStop(0.4, 'rgba(140,118,62,0.15)');
+    sg.addColorStop(1, 'rgba(140,118,62,0)');
+    sx.fillStyle = sg;
+    sx.fillRect(0, 0, spriteSize, spriteSize);
+
+    var bright = document.createElement('canvas');
+    bright.width = spriteSize; bright.height = spriteSize;
+    var bx = bright.getContext('2d');
+    var bg = bx.createRadialGradient(spriteSize / 2, spriteSize / 2, 0, spriteSize / 2, spriteSize / 2, spriteSize / 2);
+    bg.addColorStop(0, 'rgba(180,149,69,1)');
+    bg.addColorStop(0.15, 'rgba(180,149,69,0.65)');
+    bg.addColorStop(0.4, 'rgba(180,149,69,0.2)');
+    bg.addColorStop(1, 'rgba(180,149,69,0)');
+    bx.fillStyle = bg;
+    bx.fillRect(0, 0, spriteSize, spriteSize);
+
+    /* Connection threshold */
+    var CONNECT_DIST = 0.18;
+
+    function render(time) {
+      var w = canvas.width / dpr;
+      var h = canvas.height / dpr;
+      ctx.clearRect(0, 0, w, h);
+
+      /* Update positions */
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+
+        /* Organic drift */
+        var dx = Math.sin(time * 0.0004 * n.speed + n.phase) * 0.0003;
+        var dy = Math.cos(time * 0.00035 * n.speed + n.phase + 1.5) * 0.0003;
+
+        n.x += n.vx + dx;
+        n.y += n.vy + dy;
+
+        /* Soft bounce */
+        if (n.x < 0.02) { n.x = 0.02; n.vx = Math.abs(n.vx); }
+        if (n.x > 0.98) { n.x = 0.98; n.vx = -Math.abs(n.vx); }
+        if (n.y < 0.05) { n.y = 0.05; n.vy = Math.abs(n.vy); }
+        if (n.y > 0.95) { n.y = 0.95; n.vy = -Math.abs(n.vy); }
+      }
+
+      /* Draw connections */
+      ctx.strokeStyle = 'rgba(140,118,62,0.12)';
+      ctx.lineWidth = 0.5;
+      for (var i = 0; i < nodes.length; i++) {
+        for (var j = i + 1; j < nodes.length; j++) {
+          var dx = nodes[i].x - nodes[j].x;
+          var dy = (nodes[i].y - nodes[j].y) * (w / h);
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < CONNECT_DIST) {
+            var alpha = (1 - d / CONNECT_DIST) * 0.14;
+            ctx.globalAlpha = alpha;
+            ctx.beginPath();
+            ctx.moveTo(nodes[i].x * w, nodes[i].y * h);
+            ctx.lineTo(nodes[j].x * w, nodes[j].y * h);
+            ctx.stroke();
+          }
+        }
+      }
+
+      /* Draw nodes */
+      ctx.globalAlpha = 1;
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        var shimmer = 1 + Math.sin(time * 0.002 + n.phase * 5) * 0.15;
+        var sz = n.size * 3.5 * shimmer;
+        var img = n.bright ? bright : sprite;
+        ctx.drawImage(img, n.x * w - sz / 2, n.y * h - sz / 2, sz, sz);
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    requestAnimationFrame(render);
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════
      PAPER GLITCH — Subtle pixel-drift in the bottom-right.
      Fires a few times on load, then goes dormant.
      ═══════════════════════════════════════════════════════════ */
@@ -1028,6 +1155,7 @@
     initFadeIn();
     initPointCloud();
     initMarginalia();
+    initConstellation();
     initAccordion();
     initPaperGlitch();
   }
