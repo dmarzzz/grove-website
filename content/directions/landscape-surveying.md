@@ -1,5 +1,5 @@
 ---
-title: Sovereign AI Assessment
+title: Landscape Surveying
 numeral: III
 descriptor: Benchmarking the stack. Mapping where donation moves the needle.
 ---
