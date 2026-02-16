@@ -800,6 +800,17 @@ body::after {
   text-indent: -1.1em;
 }
 
+.direction__outcomes a {
+  color: var(--color-accent-dark);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-rule-light);
+  transition: border-color 0.2s ease;
+}
+
+.direction__outcomes a:hover {
+  border-color: var(--color-accent);
+}
+
 .direction__outcomes li::before {
   content: '\2192\00a0';
   color: var(--color-accent);
