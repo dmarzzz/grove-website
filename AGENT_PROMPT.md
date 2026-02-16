@@ -73,11 +73,11 @@ A short, dense prose block describing what The Grove is. The copy should draw fr
 - Keep the text column narrow (max ~640px) for readability.
 - This section should feel like reading a well-typeset broadside or a page from an institutional charter.
 
-### Section 3 — Current Directions
+### Section 3 — Ongoing Projects
 
 Three project blocks, stacked vertically. Each has a short title, a one-line descriptor, and a brief paragraph.
 
-**Heading:** "Current Directions"
+**Heading:** "Ongoing Projects"
 
 **The three directions:**
 

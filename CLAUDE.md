@@ -88,7 +88,7 @@ Particle colors are hardcoded RGB values in `initPointCloud()`. To change them, 
 - **Three scroll-snap sections**, each occupying exactly `100vh` on desktop.
 - **Three-column layout** for directions on desktop (>900px), single column on mobile.
 - **Double-border broadside frame** on the about section.
-- **Flanking ornamental rules** on the "Current Directions" heading (gradient fade from edges).
+- **Flanking ornamental rules** on the "Ongoing Projects" heading (gradient fade from edges).
 - **Diamond ornamental centerpoint** on the hero rule.
 - **Monospace footer** as a digital counterpoint to the serif/sans-serif hierarchy.
 
