@@ -1,5 +1,5 @@
-A small, dense community — running sovereign infrastructure, governing its own data, verifying its own claims — can produce more genuine intellectual value than organizations a hundred times its size.
+An inter-organizational R&D hive mind — growing out of a former Catholic school and convent in Greenpoint, Brooklyn. Engineers, researchers, artists, and organizers share a building. The Grove is what happens when they share infrastructure too.
 
-The Grove is built inside a former Catholic school in Greenpoint, Brooklyn. The mechanism is old: complementary minds, a shared library, honest inquiry, enough time. What is new is the instrumentation. Local compute. Consent-governed data. Provenance on every claim. Technology that disappears into the room.
+Communities collide here — from privacy and AI to arts and civic action. The feedback loop between these groups and the idea space they occupy is the raw material. The Grove builds tools and software uniquely accelerated by this loop: local-first, private by default, data owned by the people who generate it.
 
-Seven layers of a single organism. The garden is on the roof. The hardware is in the basement.
+The garden is on the roof. The hardware is in the basement.

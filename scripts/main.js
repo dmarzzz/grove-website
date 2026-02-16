@@ -997,23 +997,133 @@
       resizeTimer = setTimeout(resize, 200);
     });
 
-    /* Generate nodes */
-    var NODE_COUNT = 55;
+    /* ── Constellation definitions ── */
+    var CONSTELLATIONS = [
+      { // Group A — left, knowledge hub
+        nodes: [
+          { x: 0.08, y: 0.35 }, { x: 0.15, y: 0.18 }, { x: 0.22, y: 0.32 },
+          { x: 0.18, y: 0.52 }, { x: 0.10, y: 0.58 }, { x: 0.25, y: 0.55 }
+        ],
+        edges: [[0,1],[1,2],[2,3],[3,4],[4,0],[2,5],[3,5]]
+      },
+      { // Group B — center-left, chain/pathway
+        nodes: [
+          { x: 0.32, y: 0.68 }, { x: 0.38, y: 0.48 }, { x: 0.42, y: 0.72 },
+          { x: 0.48, y: 0.55 }, { x: 0.44, y: 0.35 }
+        ],
+        edges: [[0,1],[1,2],[2,3],[3,4],[1,3]]
+      },
+      { // Group C — center-right, triangle cluster
+        nodes: [
+          { x: 0.58, y: 0.30 }, { x: 0.65, y: 0.15 }, { x: 0.72, y: 0.32 },
+          { x: 0.68, y: 0.50 }, { x: 0.62, y: 0.60 }
+        ],
+        edges: [[0,1],[1,2],[2,0],[2,3],[0,4],[3,4]]
+      },
+      { // Group D — right, radial/star
+        nodes: [
+          { x: 0.82, y: 0.45 }, { x: 0.88, y: 0.22 }, { x: 0.95, y: 0.40 },
+          { x: 0.90, y: 0.62 }, { x: 0.78, y: 0.65 }, { x: 0.85, y: 0.75 }
+        ],
+        edges: [[0,1],[0,2],[0,3],[0,4],[3,5],[4,5]]
+      }
+    ];
+
+    /* Build flat node array + edge list */
     var nodes = [];
-    for (var i = 0; i < NODE_COUNT; i++) {
+    var edges = [];       // { a, b, bridge }
+    var groupOffsets = []; // starting index of each group in flat array
+
+    for (var g = 0; g < CONSTELLATIONS.length; g++) {
+      var group = CONSTELLATIONS[g];
+      var offset = nodes.length;
+      groupOffsets.push(offset);
+
+      for (var n = 0; n < group.nodes.length; n++) {
+        var def = group.nodes[n];
+        nodes.push({
+          ox: def.x, oy: def.y,
+          x: def.x,  y: def.y,
+          vx: (Math.random() - 0.5) * 0.00012,
+          vy: (Math.random() - 0.5) * 0.00012,
+          size: 3 + Math.random() * 1,
+          phase: Math.random() * Math.PI * 2,
+          speed: 0.3 + Math.random() * 0.5,
+          bright: Math.random() < 0.25,
+          field: false,
+          leash: 0.03
+        });
+      }
+
+      for (var e = 0; e < group.edges.length; e++) {
+        edges.push({
+          a: offset + group.edges[e][0],
+          b: offset + group.edges[e][1],
+          bridge: false
+        });
+      }
+    }
+
+    /* Cross-constellation bridges */
+    var bridges = [
+      [groupOffsets[0] + 2, groupOffsets[1] + 4],  // A[2] — B[4]
+      [groupOffsets[1] + 3, groupOffsets[2] + 4],  // B[3] — C[4]
+      [groupOffsets[2] + 2, groupOffsets[3] + 0]   // C[2] — D[0]
+    ];
+    for (var b = 0; b < bridges.length; b++) {
+      edges.push({ a: bridges[b][0], b: bridges[b][1], bridge: true });
+    }
+
+    /* Secondary nodes — mid-tier fill around constellations */
+    var secondaries = [
+      /* Near Group A */
+      { x: 0.05, y: 0.22 }, { x: 0.13, y: 0.40 }, { x: 0.20, y: 0.15 },
+      { x: 0.06, y: 0.48 }, { x: 0.28, y: 0.42 }, { x: 0.15, y: 0.65 },
+      /* Near Group B */
+      { x: 0.30, y: 0.55 }, { x: 0.35, y: 0.38 }, { x: 0.46, y: 0.65 },
+      { x: 0.50, y: 0.45 }, { x: 0.38, y: 0.78 },
+      /* Near Group C */
+      { x: 0.55, y: 0.20 }, { x: 0.60, y: 0.45 }, { x: 0.70, y: 0.18 },
+      { x: 0.75, y: 0.42 }, { x: 0.65, y: 0.65 },
+      /* Near Group D */
+      { x: 0.80, y: 0.32 }, { x: 0.92, y: 0.52 }, { x: 0.86, y: 0.15 },
+      { x: 0.96, y: 0.55 }, { x: 0.76, y: 0.75 }
+    ];
+    for (var s = 0; s < secondaries.length; s++) {
       nodes.push({
-        x: Math.random(),
-        y: Math.random(),
+        ox: secondaries[s].x, oy: secondaries[s].y,
+        x: secondaries[s].x,  y: secondaries[s].y,
         vx: (Math.random() - 0.5) * 0.00015,
         vy: (Math.random() - 0.5) * 0.00015,
-        size: 1.5 + Math.random() * 2.5,
+        size: 1.5 + Math.random() * 1,
         phase: Math.random() * Math.PI * 2,
         speed: 0.3 + Math.random() * 0.5,
-        bright: Math.random() < 0.2
+        bright: false,
+        field: false,
+        leash: 0.06
       });
     }
 
-    /* Pre-render glow sprite */
+    /* Field stars — tiny, dim, atmospheric depth */
+    var FIELD_COUNT = 65;
+    for (var f = 0; f < FIELD_COUNT; f++) {
+      var fx = 0.02 + Math.random() * 0.96;
+      var fy = 0.02 + Math.random() * 0.96;
+      nodes.push({
+        ox: fx, oy: fy,
+        x: fx,  y: fy,
+        vx: (Math.random() - 0.5) * 0.00015,
+        vy: (Math.random() - 0.5) * 0.00015,
+        size: 0.5 + Math.random() * 1.2,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.2 + Math.random() * 0.4,
+        bright: false,
+        field: true,
+        leash: 0
+      });
+    }
+
+    /* Pre-render glow sprites */
     var spriteSize = 32;
     var sprite = document.createElement('canvas');
     sprite.width = spriteSize; sprite.height = spriteSize;
@@ -1039,43 +1149,120 @@
     bx.fillStyle = bg;
     bx.fillRect(0, 0, spriteSize, spriteSize);
 
-    /* Connection threshold */
-    var CONNECT_DIST = 0.38;
+    var PROX_DIST = 0.18;
+
+    /* ── Pulse system — random path lights up every 30s ── */
+    var anchorCount = 0;
+    for (var g = 0; g < CONSTELLATIONS.length; g++) {
+      anchorCount += CONSTELLATIONS[g].nodes.length;
+    }
+
+    /* Build adjacency list for anchor nodes */
+    var adj = {};
+    for (var i = 0; i < anchorCount; i++) adj[i] = [];
+    for (var i = 0; i < edges.length; i++) {
+      var e = edges[i];
+      if (e.a < anchorCount && e.b < anchorCount) {
+        adj[e.a].push(e.b);
+        adj[e.b].push(e.a);
+      }
+    }
+
+    function pickPath() {
+      /* Random walk through constellation edges, 5-9 steps */
+      var start = Math.floor(Math.random() * anchorCount);
+      var path = [start];
+      var visited = {};
+      visited[start] = true;
+      var steps = 5 + Math.floor(Math.random() * 5);
+      for (var s = 0; s < steps; s++) {
+        var cur = path[path.length - 1];
+        var neighbors = adj[cur];
+        /* Prefer unvisited, but allow revisit if stuck */
+        var unvisited = [];
+        for (var n = 0; n < neighbors.length; n++) {
+          if (!visited[neighbors[n]]) unvisited.push(neighbors[n]);
+        }
+        var pool = unvisited.length > 0 ? unvisited : neighbors;
+        if (pool.length === 0) break;
+        var next = pool[Math.floor(Math.random() * pool.length)];
+        path.push(next);
+        visited[next] = true;
+      }
+      return path;
+    }
+
+    var pulse = null;        // { path, startTime, duration }
+    var PULSE_INTERVAL = 30000;
+    var PULSE_DURATION = 2500;
+    var lastPulse = -PULSE_INTERVAL + 5000; // first pulse after 5s
 
     function render(time) {
       var w = canvas.width / dpr;
       var h = canvas.height / dpr;
       ctx.clearRect(0, 0, w, h);
 
-      /* Update positions */
+      /* Update positions — velocity drift + organic sine + leash to origin */
       for (var i = 0; i < nodes.length; i++) {
         var n = nodes[i];
 
-        /* Organic drift */
         var dx = Math.sin(time * 0.0004 * n.speed + n.phase) * 0.0003;
         var dy = Math.cos(time * 0.00035 * n.speed + n.phase + 1.5) * 0.0003;
 
         n.x += n.vx + dx;
         n.y += n.vy + dy;
 
-        /* Soft bounce */
-        if (n.x < 0.02) { n.x = 0.02; n.vx = Math.abs(n.vx); }
-        if (n.x > 0.98) { n.x = 0.98; n.vx = -Math.abs(n.vx); }
-        if (n.y < 0.05) { n.y = 0.05; n.vy = Math.abs(n.vy); }
-        if (n.y > 0.95) { n.y = 0.95; n.vy = -Math.abs(n.vy); }
+        /* Leash: pull back toward origin if strayed too far */
+        if (n.leash > 0) {
+          var lx = n.ox - n.x;
+          var ly = n.oy - n.y;
+          var ld = Math.sqrt(lx * lx + ly * ly);
+          if (ld > n.leash) {
+            n.vx += lx * 0.0002;
+            n.vy += ly * 0.0002;
+          }
+        }
+
+        /* Soft bounds */
+        if (n.x < 0.01) { n.x = 0.01; n.vx = Math.abs(n.vx); }
+        if (n.x > 0.99) { n.x = 0.99; n.vx = -Math.abs(n.vx); }
+        if (n.y < 0.02) { n.y = 0.02; n.vy = Math.abs(n.vy); }
+        if (n.y > 0.98) { n.y = 0.98; n.vy = -Math.abs(n.vy); }
+
+        /* Damping */
+        n.vx *= 0.9995;
+        n.vy *= 0.9995;
       }
 
-      /* Draw connections */
-      ctx.strokeStyle = 'rgba(120,105,55,0.35)';
-      ctx.lineWidth = 1.0;
+      /* Draw explicit constellation edges */
+      ctx.lineWidth = 0.8;
+      for (var i = 0; i < edges.length; i++) {
+        var e = edges[i];
+        var na = nodes[e.a];
+        var nb = nodes[e.b];
+        var shimA = 1 + Math.sin(time * 0.002 + na.phase * 5) * 0.15;
+        var shimB = 1 + Math.sin(time * 0.002 + nb.phase * 5) * 0.15;
+        var avgShim = (shimA + shimB) / 2;
+        var alpha = e.bridge ? 0.15 * avgShim : 0.35 * avgShim;
+        ctx.strokeStyle = 'rgba(120,105,55,' + alpha + ')';
+        ctx.globalAlpha = 1;
+        ctx.beginPath();
+        ctx.moveTo(na.x * w, na.y * h);
+        ctx.lineTo(nb.x * w, nb.y * h);
+        ctx.stroke();
+      }
+
+      /* Draw proximity connections — light, ephemeral */
+      ctx.lineWidth = 0.5;
       for (var i = 0; i < nodes.length; i++) {
         for (var j = i + 1; j < nodes.length; j++) {
-          var dx = nodes[i].x - nodes[j].x;
-          var dy = (nodes[i].y - nodes[j].y) * (w / h);
-          var d = Math.sqrt(dx * dx + dy * dy);
-          if (d < CONNECT_DIST) {
-            var alpha = (1 - d / CONNECT_DIST) * 0.45;
-            ctx.globalAlpha = alpha;
+          var pdx = nodes[i].x - nodes[j].x;
+          var pdy = (nodes[i].y - nodes[j].y) * (w / h);
+          var pd = Math.sqrt(pdx * pdx + pdy * pdy);
+          if (pd < PROX_DIST) {
+            var pa = (1 - pd / PROX_DIST) * 0.12;
+            ctx.strokeStyle = 'rgba(120,105,55,' + pa + ')';
+            ctx.globalAlpha = 1;
             ctx.beginPath();
             ctx.moveTo(nodes[i].x * w, nodes[i].y * h);
             ctx.lineTo(nodes[j].x * w, nodes[j].y * h);
@@ -1084,16 +1271,80 @@
         }
       }
 
+      /* ── Pulse: fire a new path every 30s ── */
+      if (time - lastPulse > PULSE_INTERVAL) {
+        pulse = { path: pickPath(), startTime: time, duration: PULSE_DURATION };
+        lastPulse = time;
+      }
+
+      /* Draw pulse glow along path */
+      var pulseNodeGlow = {};
+      if (pulse) {
+        var elapsed = time - pulse.startTime;
+        if (elapsed < pulse.duration) {
+          var segments = pulse.path.length - 1;
+          if (segments > 0) {
+            /* Progress: 0 → 1 over duration, with head position advancing */
+            var progress = elapsed / pulse.duration;
+            /* Head position in segment-space */
+            var head = progress * segments;
+            /* Trail length in segments */
+            var trail = 2.5;
+
+            for (var s = 0; s < segments; s++) {
+              /* Segment intensity based on distance from head */
+              var segCenter = s + 0.5;
+              var dist = head - segCenter;
+              /* Only glow segments the head has reached, fade behind */
+              if (dist < -0.5) continue;
+              var intensity = 0;
+              if (dist >= 0) {
+                intensity = Math.max(0, 1 - dist / trail);
+              } else {
+                intensity = Math.max(0, 1 + dist * 2); // leading edge fade-in
+              }
+              if (intensity <= 0) continue;
+
+              var na = nodes[pulse.path[s]];
+              var nb = nodes[pulse.path[s + 1]];
+
+              /* Bright edge */
+              ctx.lineWidth = 1.5 * intensity + 0.8;
+              ctx.strokeStyle = 'rgba(200,175,90,' + (intensity * 0.7) + ')';
+              ctx.globalAlpha = 1;
+              ctx.beginPath();
+              ctx.moveTo(na.x * w, na.y * h);
+              ctx.lineTo(nb.x * w, nb.y * h);
+              ctx.stroke();
+
+              /* Track node glow (keep max intensity per node) */
+              var nodeA = pulse.path[s];
+              var nodeB = pulse.path[s + 1];
+              pulseNodeGlow[nodeA] = Math.max(pulseNodeGlow[nodeA] || 0, intensity);
+              pulseNodeGlow[nodeB] = Math.max(pulseNodeGlow[nodeB] || 0, intensity);
+            }
+          }
+        } else {
+          pulse = null;
+        }
+      }
+
       /* Draw nodes */
-      ctx.globalAlpha = 1;
       for (var i = 0; i < nodes.length; i++) {
         var n = nodes[i];
         var shimmer = 1 + Math.sin(time * 0.002 + n.phase * 5) * 0.15;
         var sz = n.size * 4.5 * shimmer;
-        var img = n.bright ? bright : sprite;
+        /* Pulse glow: enlarge and brighten nodes on active path */
+        var pg = pulseNodeGlow[i] || 0;
+        if (pg > 0) {
+          sz *= 1 + pg * 0.6;
+        }
+        var img = (n.bright || pg > 0.3) ? bright : sprite;
+        ctx.globalAlpha = n.field ? 0.45 : 1;
         ctx.drawImage(img, n.x * w - sz / 2, n.y * h - sz / 2, sz, sz);
       }
 
+      ctx.globalAlpha = 1;
       requestAnimationFrame(render);
     }
 

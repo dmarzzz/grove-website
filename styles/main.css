@@ -704,10 +704,10 @@ body::after {
   background: linear-gradient(to left, transparent, var(--color-rule));
 }
 
-/* Three-column grid */
+/* Two-by-two grid */
 .directions__grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
 }
 
 .direction {
@@ -723,13 +723,19 @@ body::after {
   background-color: rgba(232, 220, 198, 0.4);
 }
 
-.direction:first-child {
+.direction:nth-child(odd) {
   padding-left: 0;
   border-left: none;
 }
 
-.direction:last-child {
+.direction:nth-child(even) {
   padding-right: 0;
+}
+
+.direction:nth-child(n+3) {
+  border-top: 1px solid var(--color-rule-faint);
+  padding-top: clamp(1rem, 2vw, 1.5rem);
+  margin-top: clamp(0.5rem, 1.5vw, 1rem);
 }
 
 /* Roman numeral anchors */
@@ -766,6 +772,26 @@ body::after {
   font-size: var(--size-small);
   line-height: 1.65;
   color: var(--color-text-muted);
+}
+
+.direction__outcomes {
+  margin-top: 0.6rem;
+  padding: 0;
+  list-style: none;
+}
+
+.direction__outcomes li {
+  font-family: var(--font-mono);
+  font-size: clamp(0.6rem, 1.1vw, 0.72rem);
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  padding-left: 1.1em;
+  text-indent: -1.1em;
+}
+
+.direction__outcomes li::before {
+  content: '\2192\00a0';
+  color: var(--color-accent);
 }
 
 
@@ -809,6 +835,7 @@ body::after {
 .directions__grid .direction.fade-in:nth-child(1) { transition-delay: 0s; }
 .directions__grid .direction.fade-in:nth-child(2) { transition-delay: 0.15s; }
 .directions__grid .direction.fade-in:nth-child(3) { transition-delay: 0.3s; }
+.directions__grid .direction.fade-in:nth-child(4) { transition-delay: 0.45s; }
 
 /* Pulsing holographic glow */
 @keyframes title-glow {
@@ -947,7 +974,8 @@ body::after {
     content: '\2212';
   }
 
-  .direction__body {
+  .direction__body,
+  .direction__outcomes {
     max-height: 0;
     overflow: hidden;
     opacity: 0;
@@ -961,9 +989,15 @@ body::after {
     margin-top: 0.65rem;
   }
 
+  .direction.expanded .direction__outcomes {
+    max-height: 10rem;
+    opacity: 1;
+  }
+
   /* Reset stagger delays on mobile */
   .directions__grid .direction.fade-in:nth-child(2),
-  .directions__grid .direction.fade-in:nth-child(3) {
+  .directions__grid .direction.fade-in:nth-child(3),
+  .directions__grid .direction.fade-in:nth-child(4) {
     transition-delay: 0s;
   }
 
