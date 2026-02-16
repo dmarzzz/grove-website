@@ -774,6 +774,17 @@ body::after {
   color: var(--color-text-muted);
 }
 
+.direction__body a {
+  color: var(--color-accent-dark);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-rule-light);
+  transition: border-color 0.2s ease;
+}
+
+.direction__body a:hover {
+  border-color: var(--color-accent);
+}
+
 .direction__outcomes {
   margin-top: 0.6rem;
   padding: 0;
