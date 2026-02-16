@@ -8,3 +8,4 @@ We participate in the construction and operation of nodes in anonymous broadcast
 
 → Operating a FlashNet node: secure computation on a private overlay network
 → TorDash
+→ ZCash supporting infrastructure
