@@ -959,8 +959,6 @@
     var cards = document.querySelectorAll('.direction');
     if (!cards.length) return;
 
-    /* First card expanded by default */
-    cards[0].classList.add('expanded');
 
     cards.forEach(function (card) {
       card.addEventListener('click', function () {
