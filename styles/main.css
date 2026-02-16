@@ -918,7 +918,9 @@ body::after {
   }
 
   .section {
-    height: 100%;
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
   }
 
   /* Accordion for direction cards */
@@ -930,6 +932,8 @@ body::after {
   .direction {
     padding: clamp(0.75rem, 2vh, 1.25rem) 0;
     border-left: none;
+    border-top: none;
+    margin-top: 0;
     border-bottom: 1px solid var(--color-rule-faint);
     cursor: pointer;
     transition: none;
@@ -974,6 +978,7 @@ body::after {
     content: '\2212';
   }
 
+  .direction__descriptor,
   .direction__body,
   .direction__outcomes {
     max-height: 0;
@@ -981,12 +986,19 @@ body::after {
     opacity: 0;
     transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
     margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .direction.expanded .direction__descriptor {
+    max-height: 5rem;
+    opacity: 1;
+    margin-bottom: 0.65rem;
   }
 
   .direction.expanded .direction__body {
     max-height: 20rem;
     opacity: 1;
-    margin-top: 0.65rem;
+    margin-top: 0;
   }
 
   .direction.expanded .direction__outcomes {
@@ -1003,6 +1015,7 @@ body::after {
 
   .page {
     border-width: 2px;
+    scroll-snap-type: y mandatory;
   }
 
   /* Simplify frame on tablet/mobile */
@@ -1057,5 +1070,42 @@ body::after {
     max-width: 88vw;
     padding: 0 0.5rem;
     line-height: 1.55;
+  }
+
+  /* Tighten about section to fit mobile viewport */
+  .about__heading {
+    margin-bottom: clamp(0.75rem, 2vh, 1.25rem);
+  }
+
+  .about__dropcap {
+    font-size: 2.8em;
+    margin-right: 0.06em;
+  }
+
+  .about__lede {
+    margin-bottom: 0.75em;
+  }
+
+  .about__content p {
+    margin-bottom: 0.75em;
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  .about__rule {
+    margin: 0.5em auto 0.75em;
+  }
+
+  .about__closing {
+    font-size: 0.78rem;
+  }
+
+  .about__mark {
+    margin-top: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .about__constellation {
+    height: 140px;
   }
 }
