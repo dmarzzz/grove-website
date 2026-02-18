@@ -1037,7 +1037,7 @@ body::after {
 
   .page {
     border-width: 2px;
-    scroll-snap-type: y mandatory;
+    scroll-snap-type: y proximity;
   }
 
   /* Simplify frame on tablet/mobile */
